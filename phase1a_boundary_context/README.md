@@ -7,3 +7,7 @@ True-boundary windows are formed around adjacent GT-assigned events whose execut
 Context differences should be interpreted as complementary evidence, not rules: temporal density, application/window diversity, browser/clipboard/keyboard/mouse composition, dominant event/app, and pre/post app-set similarity are compared together. The initial analysis already establishes that app changes must not be used alone.
 
 Continuation and split cases remain structurally difficult because GT includes interrupted and missing-end executions; chunks are recording units, not positive labels. The next design stage should investigate calibrated local-window features, explicit abstention/unassigned treatment, and execution-level validation—not single-event triggers.
+
+## Plots
+
+`plots/` contains comparisons of true-boundary and within-execution behavioral windows at 10, 20, and 50 events, plus the 20-event pre-window gap distribution. These are diagnostics, not decision rules.
