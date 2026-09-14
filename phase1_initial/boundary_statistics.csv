@@ -1,0 +1,11 @@
+group,metric,value
+true_boundary,pairs,1382.0
+true_boundary,gap_median_seconds,0.521
+true_boundary,gap_p95_seconds,7.035000000000006
+true_boundary,app_change_rate,0.013024602026049204
+true_boundary,window_change_rate,0.016642547033285094
+within_execution,pairs,161323.0
+within_execution,gap_median_seconds,0.052
+within_execution,gap_p95_seconds,2.352899999999994
+within_execution,app_change_rate,0.01695976395182336
+within_execution,window_change_rate,0.02757201390998184

@@ -1,0 +1,61 @@
+signal,group,value,count,rate
+event_type,boundary,app_switch,940,0.6801736613603473
+event_type,boundary,browser_navigation,382,0.276410998552822
+event_type,boundary,mouse_click,40,0.02894356005788712
+event_type,boundary,screenshot_smart,11,0.007959479015918957
+event_type,boundary,keystroke,3,0.002170767004341534
+event_type,boundary,mouse_scroll,2,0.001447178002894356
+event_type,boundary,shortcut,2,0.001447178002894356
+event_type,boundary,upload_completed,2,0.001447178002894356
+event_type,within,app_switch,49648,0.3077552487865958
+event_type,within,keystroke,38714,0.23997818042064678
+event_type,within,screenshot_smart,34569,0.21428438598339977
+event_type,within,shortcut,13666,0.08471203734123467
+event_type,within,mouse_click,6137,0.03804169275304823
+event_type,within,browser_click,5365,0.033256262281261814
+event_type,within,clipboard_change,5198,0.03222107201081061
+event_type,within,mouse_scroll,3178,0.019699608859245116
+event_type,within,browser_form_input,1805,0.011188733162661245
+event_type,within,browser_navigation,1343,0.008324913372550721
+event_type,within,window_title_change,451,0.0027956336046317015
+event_type,within,window_state_change,232,0.0014381086391897
+event_type,within,browser_error,200,0.0012397488268876726
+event_type,within,extension_disconnected,172,0.0010661839911233985
+event_type,within,browser_alert,137,0.0008492279464180557
+active_app,boundary,Google Chrome,1321,0.9558610709117221
+active_app,boundary,Notepad,28,0.020260492040520984
+active_app,boundary,Windows Explorer,16,0.011577424023154847
+active_app,boundary,Microsoft PowerPoint,5,0.00361794500723589
+active_app,boundary,Microsoft Word,4,0.002894356005788712
+active_app,boundary,olk,3,0.002170767004341534
+active_app,boundary,<missing>,2,0.001447178002894356
+active_app,boundary,Microsoft Excel,1,0.000723589001447178
+active_app,boundary,prl_cc,1,0.000723589001447178
+active_app,boundary,WindowsTerminal,1,0.000723589001447178
+active_app,within,Google Chrome,116813,0.7240938985761485
+active_app,within,Notepad,30206,0.1872392653248452
+active_app,within,Microsoft Word,5361,0.033231467304724066
+active_app,within,Microsoft PowerPoint,3229,0.020015744810101474
+active_app,within,Windows Explorer,1932,0.011975973667734917
+active_app,within,WindowsTerminal,1686,0.01045108261066308
+active_app,within,Microsoft Excel,886,0.005492087303112389
+active_app,within,<missing>,407,0.0025228888627164135
+active_app,within,procmine-desktop-agent,320,0.0019835981230202763
+active_app,within,olk,179,0.001109575200064467
+active_app,within,Settings,126,0.0007810417609392337
+active_app,within,ms-teams,88,0.0005454894838305759
+active_app,within,prl_cc,45,0.0002789434860497263
+active_app,within,claude,16,9.917990615101381e-05
+active_app,within,powershell,15,9.298116201657544e-05
+layer,boundary,L2,987,0.7141823444283647
+layer,boundary,L3,382,0.276410998552822
+layer,boundary,L1,11,0.007959479015918957
+layer,boundary,SYSTEM,2,0.001447178002894356
+layer,within,L2,117412,0.7278069463126771
+layer,within,L1,34569,0.21428438598339977
+layer,within,L3,8953,0.05549735623562666
+layer,within,SYSTEM,389,0.0024113114682965233
+app_change,boundary,true,18,0.013024602026049204
+app_change,within,true,2736,0.01695976395182336
+window_change,boundary,true,23,0.016642547033285094
+window_change,within,true,4448,0.02757201390998184
