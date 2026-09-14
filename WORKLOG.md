@@ -26,3 +26,8 @@
 - Diagnosed existing held-out model only: imbalance, probability overlap, threshold sweep, coefficients, and error examples.
 - No retraining, Dataset B use, clustering, or pipeline redesign performed.
 
+
+## 2026-09-15 — Phase 1C
+- Built Dataset A-only weak-signal candidate generation and compact contextual representation.
+- No final segmentation or Dataset B work.
+
