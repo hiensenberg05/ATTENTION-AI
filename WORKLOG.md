@@ -31,3 +31,7 @@
 - Built Dataset A-only weak-signal candidate generation and compact contextual representation.
 - No final segmentation or Dataset B work.
 
+
+## 2026-09-15 — Phase 1D
+- Diagnosed all Dataset A GT boundary signal coverage; no candidate-generator change or ranking implemented.
+
