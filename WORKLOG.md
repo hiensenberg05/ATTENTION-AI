@@ -15,3 +15,9 @@
 - Implemented: diagnostic gap and gap-or-app-change baselines only; no segmentation, clustering, classifier, or Dataset B labeling.
 - Next step: await approval before a segmentation-design stage.
 
+
+## 2026-09-14 — Phase 1A
+- Investigated: 10/20/50-event pre/post behavioral windows at GT execution changes against sampled within-execution transitions.
+- Implemented: context statistics and diagnostic comparisons only; no segmentation or Dataset B tuning.
+- Next step: await approval for segmentation design.
+
