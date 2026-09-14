@@ -21,3 +21,8 @@
 - Implemented: context statistics and diagnostic comparisons only; no segmentation or Dataset B tuning.
 - Next step: await approval for segmentation design.
 
+
+## 2026-09-15 — Phase 1B.1
+- Diagnosed existing held-out model only: imbalance, probability overlap, threshold sweep, coefficients, and error examples.
+- No retraining, Dataset B use, clustering, or pipeline redesign performed.
+
