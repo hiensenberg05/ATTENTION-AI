@@ -1,0 +1,29 @@
+{
+  "frozen_threshold": 0.88,
+  "frozen_training_oof_f1": 0.3404874499818116,
+  "dataset_b_events": 20477,
+  "dataset_b_sessions": 15,
+  "dataset_b_candidates": 16955,
+  "dataset_b_predicted_boundaries": 211,
+  "dataset_b_segments": 226,
+  "segments_crossing_chunk": 5,
+  "median_segment_duration_seconds": 26.976,
+  "mean_segment_duration_seconds": 45.2605575221239,
+  "segments_per_session": {
+    "ses_20260701-164424-CHAITANYA0BCF": 7,
+    "ses_20260701-171614-CHAITANYA0BCF": 12,
+    "ses_20260701-173246-SIDDHIGUPTAB00B": 12,
+    "ses_20260701-173642-NEELA9BAF": 13,
+    "ses_20260701-175258-LAPTOP-76QMG9DE": 13,
+    "ses_20260701-175747-SIDDHIGUPTAB00B": 18,
+    "ses_20260701-180923-NEELA9BAF": 17,
+    "ses_20260701-181413-LAPTOP-76QMG9DE": 9,
+    "ses_20260701-181913-SIDDHIGUPTAB00B": 14,
+    "ses_20260701-182634-NEELA9BAF": 12,
+    "ses_20260701-183232-LAPTOP-76QMG9DE": 9,
+    "ses_20260701-184201-LAPTOP-76QMG9DE": 18,
+    "ses_20260701-190250-NEELA9BAF": 13,
+    "ses_20260701-191537-LAPTOP-76QMG9DE": 14,
+    "ses_20260701-192455-NEELA9BAF": 45
+  }
+}
