@@ -35,3 +35,8 @@
 ## 2026-09-15 — Phase 1D
 - Diagnosed all Dataset A GT boundary signal coverage; no candidate-generator change or ranking implemented.
 
+
+## 2026-09-15 — Phase 1F
+- Built the final Dataset A-only high-recall candidate plus contextual scorer segmentation pipeline.
+- Used no Dataset B, process clustering, LLM, or Step 3 work; model features exclude process identity/code/variant and GT columns.
+- Threshold is chosen with grouped training-only out-of-fold calibration; pending final held-out results.

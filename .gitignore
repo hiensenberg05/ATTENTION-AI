@@ -1,4 +1,22 @@
 ﻿__pycache__/
 .pytest_cache/
+
+# Local environments and secrets
+.env
+.env.*
+env/
+.venv/
+venv/
+
+# Generated tabular and extra data
+*.csv
+extra_data/
+
+# Keep the required datasets tracked
+!dataset_a/
+!dataset_a/**
+!dataset_b/
+!dataset_b/**
+
 outputs/tables/*.parquet
 outputs/profiles/*.csv
