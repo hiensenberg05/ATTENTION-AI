@@ -4,7 +4,7 @@ NO LLM IN THIS FILE. The decision arrives already made; this module performs it,
 verifies it independently, and records what happened step by step.
 
 The step sequence mirrors the human action sequence confirmed by screenshot in
-`phase2_dataset_b/visual_audit.md` - and it is the SAME sequence for both
+`phase2/results/visual_audit.md` - and it is the SAME sequence for both
 workflows, which is why one runner serves both:
 
     Leave   (seg013, 4.4s, 17 events)  open the queue -> click into the row ->

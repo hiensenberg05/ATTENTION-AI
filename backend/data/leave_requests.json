@@ -12,7 +12,7 @@
       "session_id": "ses_20260701-180923-NEELA9BAF",
       "screenshot": "dataset_b/ses_20260701-180923-NEELA9BAF/chunk_20260701-1800-NEELA9BAF/screenshots/scr_smart_1782930031888_monitor_1_post.jpg",
       "system": "HR人事給与システム @ 127.0.0.1:5132/#/leave-applications",
-      "documented_in": "phase2_dataset_b/visual_audit.md"
+      "documented_in": "phase2/results/visual_audit.md"
     },
     "prototype_only_fields": {
       "prior_approval_obtained": "NOT an observed field. Dataset B's UI showed whether prior approval was REQUIRED (事前承認要否), never whether it had been OBTAINED. Added so the prototype policy has something decidable to evaluate."

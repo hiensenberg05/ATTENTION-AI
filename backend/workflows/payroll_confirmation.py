@@ -3,7 +3,7 @@
 Specification only: no agent, no browser, no state transitions are executed here.
 
 The step sequence mirrors the human action sequence directly confirmed by
-screenshot in `phase2_dataset_b/visual_audit.md` for segment
+screenshot in `phase2/results/visual_audit.md` for segment
 `ses_20260701-190250-NEELA9BAF::seg002` (11.7s, 24 events), reconstructed
 event-by-event in `step3_prototype_spec.md`:
 
@@ -176,10 +176,10 @@ PAYROLL_CONFIRMATION_WORKFLOW = WorkflowDefinition(
         phase2_confidence_level="High",
         visually_confirmed=True,
         source_documents=[
-            "phase2_dataset_b/phase2_summary.md",
-            "phase2_dataset_b/visual_audit.md",
-            "phase2_dataset_b/step3_prototype_spec.md",
-            "phase2_dataset_b/automation_candidates.csv",
+            "phase2/results/phase2_summary.md",
+            "phase2/results/visual_audit.md",
+            "phase2/results/step3_prototype_spec.md",
+            "phase2/results/automation_candidates.csv",
         ],
         caveats=[
             "These figures are for the port-5132 payroll family alone. Dataset B also "

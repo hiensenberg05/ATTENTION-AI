@@ -98,7 +98,7 @@ counters are zero and the screens show an empty system.
   runs this backend actually performed. Durations are measured, never estimated.
 - **Phase 2 evidence** — workflow cards (23 leave executions / 18.63 observed
   minutes; 39 payroll / 30.16) come from
-  `phase2_dataset_b/automation_candidates.csv`. These are historical measurements
+  `phase2/results/automation_candidates.csv`. These are historical measurements
   of humans, not prototype run metrics, and the UI keeps them visibly separate.
 - **Still a stand-in** — the target system is a mock HR application, and the
   records are demo data. Every screen that could be mistaken for production says so.

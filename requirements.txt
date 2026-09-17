@@ -1,5 +1,46 @@
-﻿matplotlib>=3.8,<4.0
-pandas>=2.0,<3.0
-pyarrow>=14.0,<20.0
-pytest>=8.0,<9.0
-scikit-learn>=1.4,<2.0
+# ─────────────────────────────────────────────────────────────────────────────
+# Attention AI — single dependency set for the whole project
+#
+# One file, one virtual environment, at the repo root:
+#
+#     python -m venv venv
+#     venv\Scripts\Activate.ps1            # PowerShell
+#     pip install -r requirements.txt
+#     python -m playwright install chromium
+#
+# There is deliberately no second requirements.txt and no second venv. Phase 1,
+# Phase 2, the backend and the tests all run from this one environment.
+#
+# Versions are pinned, not ranged. Phase 1's segmentation scorer and Phase 2's
+# segments.jsonl are reproducible outputs — they are regenerated and checksummed
+# against the committed results, and a silent minor-version bump in numpy or
+# scikit-learn is exactly the thing that would break that claim quietly.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# --- Phase 1 / Phase 2: log analysis, segmentation, plots --------------------
+numpy==2.5.3
+pandas==2.3.3
+pyarrow==19.0.1                # parquet event tables in outputs/tables/
+scikit-learn==1.9.1            # the boundary scorer (logistic regression)
+matplotlib==3.11.2             # the committed plots under phase1|2/results/
+
+# --- Phase 3 backend: API ----------------------------------------------------
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+pydantic==2.13.5
+python-multipart==0.0.32       # form posts from the mock HR application
+
+# --- Phase 3: mock internal HR application ----------------------------------
+jinja2==3.1.6                  # server-rendered HTML, the browser target
+
+# --- Phase 3: agent decision layer ------------------------------------------
+# pydantic-ai-slim[groq] pulls in the Groq client. The model is
+# openai/gpt-oss-20b, and the API key is read from GROQ_API_KEY — never hardcoded.
+pydantic-ai-slim[groq]==2.44.0
+python-dotenv==1.2.3           # loads the repo-root .env if present
+
+# --- Phase 3: deterministic execution ---------------------------------------
+playwright==1.63.0             # run `python -m playwright install chromium`
+
+# --- Tests (Phase 0 analysis tests + the 76 backend tests) ------------------
+pytest==9.1.1

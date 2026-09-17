@@ -7,7 +7,7 @@ generality can be demonstrated later without reshaping the foundation.
 
 Field set derived from the Dataset B Finance/HR payroll-items detail panel
 (`127.0.0.1:5132/#/payroll-items`), confirmed by screenshot in
-`phase2_dataset_b/visual_audit.md`:
+`phase2/results/visual_audit.md`:
 
     管理ID      -> record_id          (P1-07046967-001)
     社員ID      -> employee_id        (E2011)

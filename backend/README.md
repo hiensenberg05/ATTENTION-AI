@@ -1,7 +1,7 @@
 # Back-Office Automation Agent — backend
 
 Step 3 prototype for the IMbesideYou FDE assignment. Separate from the Phase 1/2
-analysis code (`src/`, `phase1*/`, `phase2_dataset_b/`), which is frozen and untouched.
+analysis code (`phase1/`, `phase2/`, `src/`), which is frozen and untouched.
 
 **Stage: two workflows live.** An LLM evaluates an explicit policy and returns a
 structured decision, Python routes the job through a state machine, Playwright
@@ -17,21 +17,34 @@ of gates, a screen spec and one row in the registry.
 
 ## Run
 
-```bash
-cd backend
-python -m venv .venv
-./.venv/Scripts/python.exe -m pip install -r requirements.txt   # Windows
-# source .venv/bin/activate && pip install -r requirements.txt  # macOS/Linux
+The backend has no environment of its own. It runs from the single project
+venv at the repo root, installed from the single root `requirements.txt`.
 
-./.venv/Scripts/python.exe -m playwright install chromium       # one-time
-./.venv/Scripts/python.exe -m uvicorn main:app --reload --port 8000
+```powershell
+# one-time, from the repo root
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m playwright install chromium
+
+# every time
+cd backend
+python -m uvicorn main:app --reload --port 8000
+```
+
+```bash
+# macOS/Linux equivalent, from the repo root
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt && python -m playwright install chromium
+cd backend && python -m uvicorn main:app --reload --port 8000
 ```
 
 - API docs: <http://127.0.0.1:8000/docs>
 - Mock HR system: <http://127.0.0.1:8000/mock-hr/leave-applications> and
   <http://127.0.0.1:8000/mock-hr/payroll-items>
 
-Tests (64, including real-browser runs against a real server): `python -m pytest`
+Tests (76, including real-browser runs against a real server): `python -m pytest`
+Run them from `backend/` with the root venv active.
 
 ### Environment
 
@@ -92,7 +105,7 @@ system the platform does not own, and "verify it worked" means independently
 re-reading that system afterwards.
 
 Both screens mirror what was directly observed in the Dataset B screenshots
-(`phase2_dataset_b/visual_audit.md`):
+(`phase2/results/visual_audit.md`):
 
 | Screen | Fields | Reference note | Controls |
 |---|---|---|---|

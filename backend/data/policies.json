@@ -5,8 +5,8 @@
     "why_explicit": "The agent evaluates records against this configured policy rather than inventing business rules. Records the policy does not clearly cover escalate to a human instead of being guessed at.",
     "evidence_informed_choices": "Where the policy could be shaped by real evidence, it was: request types are auto-approvable only where Dataset B actually showed that type being approved, and rejection is not auto-executable because the 差戻し path was never observed at all.",
     "documented_in": [
-      "phase2_dataset_b/visual_audit.md",
-      "phase2_dataset_b/step3_prototype_spec.md"
+      "phase2/results/visual_audit.md",
+      "phase2/results/step3_prototype_spec.md"
     ]
   },
   "leave_approval": {

@@ -1,0 +1,952 @@
+result,session_id,timestamp_iso,score,event_index,pre_event_types,post_event_types,pre_apps,post_apps,pre_windows,post_windows,pre_text_or_clipboard,post_text_or_clipboard
+TP,ses_20260701-155031-CHAITANYA0BCF,2026-07-01T16:13:03.875Z,0.999999999999998,2187,keystroke > keystroke > browser_form_input > mouse_click > browser_click > screenshot_smart > app_switch > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 21:40:59
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+1
+給与備考・控除
+0
+育児・産休申請
+0
+社保・年金補正
+0
+入社照合
+0
+ダッシュボード / 社保・年金補正対応
+社保・年金補正対応
+3 件 · 0 件処理待ち
+補正処理一覧
+管理ID
+社員ID
+氏名
+手続き種別
+対象年","Address and search bar
+127.0.0.1:5122/#/resident-tax
+HR人事給与システム
+http://127.0.0.1:5122/#/resident-tax
+HR人事給与システム
+SI-212010-002: 処理完了に更新しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 21:43:08
+田中 麻里 · 人事マネー"
+TP,ses_20260701-115141-SIDDHIGUPTAB00B,2026-07-01T12:30:37.559Z,0.9999999999999902,3144,screenshot_smart > app_switch > screenshot_smart > keystroke > keystroke > keystroke > keystroke > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > mouse_scroll > screenshot_smart > upload_started > app_switch,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,"受発
+受発注在庫管理システム
+2026年度 · 物流管理部
+2026/07/01 17:58:27
+高橋 健司 · 物流マネージャー
+高
+受発注在庫業務
+ダッシュボード
+受注処理
+1
+在庫調整
+0
+仕入先連絡
+0
+出荷追跡
+0
+返品処理
+0
+ダッシュボード / 返品処理
+返品処理
+3 件 · 0 件処理待ち
+返品一覧
+管理ID
+RMA番号
+顧客
+品名
+返品理由
+処理工程数
+ステータス
+RET-17",
+TP,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T06:09:34.610Z,0.9999998549415252,2318,app_switch > screenshot_smart > window_state_change > window_title_change > window_title_change > screenshot_smart > window_title_change > screenshot_smart,app_switch > screenshot_smart > mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke,Google Chrome,Google Chrome,Threads - Imbesideyou - 1 new item - Slack - Google Chrome > Untitled - Google Chrome > 指定されたページを表示できませんでした - Google Chrome,受発注在庫管理システム - Google Chrome,,"受発
+受発注在庫管理システム
+2026年度 · 物流管理部
+2026/07/01 11:39:33
+高橋 健司 · 物流マネージャー
+高
+受発注在庫業務
+ダッシュボード
+受注処理
+0
+在庫調整
+4
+仕入先連絡
+0
+出荷追跡
+3
+返品処理
+0
+ダッシュボード / 返品処理
+返品処理
+3 件 · 0 件処理待ち
+返品一覧
+管理ID
+RMA番号
+顧客
+品名
+返品理由
+処理工程数
+ステータス
+RET-11"
+TP,ses_20260630-125757-LAPTOP-R36BQBTE,2026-06-30T13:11:41.836Z,0.9999995761432756,1268,keystroke > screenshot_smart > mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,mouse_click > shortcut > keystroke > keystroke > screenshot_smart > shortcut > keystroke > keystroke,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,BATCH-W3 センサーケーブルC 出庫引当 344個。通常処理。,
+TP,ses_20260701-123729-Marcos,2026-07-01T12:52:49.608Z,0.9999995257275176,1698,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/leave-applications
+受発注在庫管理システム
+http://127.0.0.1:5124/#/leave-applications
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+STK-180703-004: 在庫を更新しまし"
+TP,ses_20260701-124033-SIDDHIGUPTAB00B,2026-07-01T12:48:18.325Z,0.9999993849592376,819,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome > Notepad,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome > *Inventory catalog metrics - Notepad,,
+TP,ses_20260701-115141-SIDDHIGUPTAB00B,2026-07-01T12:25:52.145Z,0.9999992594085056,2840,keystroke > keystroke > mouse_click > browser_form_input > browser_click > screenshot_smart > app_switch > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > mouse_scroll > screenshot_smart > app_switch > screenshot_smart,Google Chrome,Google Chrome > Notepad,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome > *Untitled - Notepad,"受発
+受発注在庫管理システム
+2026年度 · 物流管理部
+2026/07/01 17:55:19
+高橋 健司 · 物流マネージャー
+高
+受発注在庫業務
+ダッシュボード
+受注処理
+1
+在庫調整
+0
+仕入先連絡
+0
+出荷追跡
+0
+返品処理
+3
+ダッシュボード / 在庫調整
+在庫調整
+3 件 · 0 件未処理
+処理待ち在庫調整
+管理ID
+品番
+品名
+調整区分
+調整数
+種別
+ステータス
+STK-1721",
+TP,ses_20260701-022828-yuvraj,2026-07-01T02:30:31.133Z,0.9999981841746067,57,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > upload_started > screenshot_smart > mouse_scroll > app_switch,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/payroll-items
+受発注在庫管理システム
+http://127.0.0.1:5124/#/payroll-items
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+ORD-075754-001: 受注確定に更新しました
+受発
+受発注"
+TP,ses_20260701-131015-SIDDHIGUPTAB00B,2026-07-01T13:22:00.969Z,0.9999981769190652,1349,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5122/#/leave-applications
+HR人事給与システム
+http://127.0.0.1:5122/#/leave-applications
+HR人事給与システム
+Chrome didn't shut down correctly.
+PI-183942-001: 登録確定しました
+給与"
+TP,ses_20260701-123729-Marcos,2026-07-01T12:57:52.858Z,0.999998093533631,2195,keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart > app_switch > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/07/01 18:27:14
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+0
+経費精算承認
+0
+銀行勘定照合
+0
+予算差異分析
+0
+支払処理
+0
+ダッシュボード / 支払処理
+支払処理
+3 件 · 0 件処理待ち
+支払一覧
+管理ID
+支払先コード
+支払先
+支払方法・金額
+関連請求書
+処理工程数
+ステー","Restore pages?
+Address and search bar
+127.0.0.1:5123/#/leave-applications
+財務会計システム
+http://127.0.0.1:5123/#/leave-applications
+財務会計システム
+Chrome didn't shut down correctly.
+PM-180703-001: 支払を実行しました
+財務
+財務"
+TP,ses_20260701-005920-yuvraj,2026-07-01T01:15:31.794Z,0.9999942489325874,1839,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/resident-tax
+受発注在庫管理システム
+http://127.0.0.1:5124/#/resident-tax
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+STK-062507-003: 在庫を更新しました
+受発
+受発注在庫管理"
+TP,ses_20260630-132737-LAPTOP-R36BQBTE,2026-06-30T13:44:17.449Z,0.9999841584180604,1511,screenshot_smart > mouse_click > clipboard_change > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > clipboard_change,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5122/#/resident-tax
+HR人事給与システム
+http://127.0.0.1:5122/#/resident-tax
+HR人事給与システム
+Chrome didn't shut down correctly.
+Help make Google Chrome better by send"
+TP,ses_20260630-163424-SIDDHIGUPTAB00B,2026-06-30T16:38:56.481Z,0.999980839271807,509,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > upload_failed > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5122/#/social-insurance
+HR人事給与システム
+http://127.0.0.1:5122/#/social-insurance
+HR人事給与システム
+Chrome didn't shut down correctly.
+RT-220339-001: 確認済みに更新しました
+給与
+"
+TP,ses_20260701-030836-yuvraj,2026-07-01T03:11:04.645Z,0.9999773355111863,106,clipboard_change > shortcut > keystroke > keystroke > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome > Notepad,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome > *Untitled - Notepad,,
+TP,ses_20260701-014804-yuvraj,2026-07-01T01:52:41.748Z,0.999975406613937,530,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5123/#/onboarding
+財務会計システム
+http://127.0.0.1:5123/#/onboarding
+財務会計システム
+Chrome didn't shut down correctly.
+INV-071644-001: 承認に更新しました
+財務
+財務会計システム
+2026年度 ·"
+TP,ses_20260701-172430-yuvraj,2026-07-01T17:26:18.472Z,0.9999748909349746,43,keystroke > keystroke > clipboard_change > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/leave-applications
+受発注在庫管理システム
+http://127.0.0.1:5124/#/leave-applications
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+STK-225333-001: 在庫を更新しまし"
+TP,ses_20260701-074424-SIDDHIGUPTAB00B,2026-07-01T07:47:03.884Z,0.9999744954216336,235,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,Restore pages?
+TP,ses_20260701-120612-Marcos,2026-07-01T12:14:58.716Z,0.9999739462622125,928,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/social-insurance
+受発注在庫管理システム
+http://127.0.0.1:5124/#/social-insurance
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+ORD-173546-002: 受注確定に更新しました
+"
+TP,ses_20260701-081732-CHAITANYA0BCF,2026-07-01T08:19:43.474Z,0.9999727766202041,157,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome > Microsoft Word,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome >  > Supplier_List [Compatibility Mode] - Word,,Starting...
+TP,ses_20260701-155031-CHAITANYA0BCF,2026-07-01T16:09:44.522Z,0.9999727256472081,2044,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Address and search bar
+127.0.0.1:5122/#/resident-tax
+HR人事給与システム
+http://127.0.0.1:5122/#/resident-tax
+HR人事給与システム
+PI-212010-004: 登録確定しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 21:39:49
+田中 麻里 · 人事マネージャー"
+FP,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T06:00:41.968Z,0.8403794557212201,1330,mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click > app_switch > screenshot_smart,app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,"受発
+受発注在庫管理システム
+2026年度 · 物流管理部
+2026/07/01 11:30:40
+高橋 健司 · 物流マネージャー
+高
+受発注在庫業務
+ダッシュボード
+受注処理
+4
+在庫調整
+4
+仕入先連絡
+0
+出荷追跡
+3
+返品処理
+3
+ダッシュボード / 受注処理
+受注処理
+5 件 · 4 件未確認
+受注一覧
+管理ID
+顧客コード
+顧客
+受注番号
+出荷期日
+金額（円）
+ステータス
+ORD-1",
+FP,ses_20260701-090300-Marcos,2026-07-01T09:19:08.563Z,0.840386787523265,2076,keystroke > keystroke > keystroke > keystroke > keystroke > keystroke > screenshot_smart > browser_alert,browser_navigation > screenshot_smart > app_switch > screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5123/#/leave-applications
+財務会計システム
+http://127.0.0.1:5123/#/leave-applications
+財務会計システム
+Chrome didn't shut down correctly.
+BR-143234-003: 照合を完了しました
+財務
+財務"
+FP,ses_20260630-164418-MSI,2026-06-30T16:49:29.578Z,0.8405124470814251,772,browser_click > screenshot_smart > clipboard_change > shortcut > keystroke > keystroke > screenshot_smart > browser_form_input,mouse_click > browser_click > screenshot_smart > browser_navigation > screenshot_smart > mouse_click > browser_click > screenshot_smart,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,
+FP,ses_20260701-032825-CHAITANYA0BCF,2026-07-01T03:48:25.647Z,0.8413331406755381,1903,mouse_click > browser_form_input > browser_click > screenshot_smart > keystroke > keystroke > keystroke > keystroke,screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch > app_switch > screenshot_smart > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 09:18:25
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+1
+給与備考・控除
+0
+育児・産休申請
+0
+社保・年金補正
+0
+入社照合
+0
+ダッシュボード / 社保・年金補正対応
+社保・年金補正対応
+3 件 · 0 件処理待ち
+補正処理一覧
+管理ID
+社員ID
+氏名
+手続き種別
+対象年"
+FP,ses_20260701-051850-LAPTOP-R36BQBTE,2026-07-01T05:33:02.982Z,0.8415415018645257,1666,app_switch > mouse_click > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,app_switch > screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch,Notepad > Google Chrome,Google Chrome,*launch_m1.ps1 - Notepad > 受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,"Text editor
+#Requires -Version 5.1<#.SYNOPSIS    Launch Theme M1 -- Mixed Multi-Domain Orchestrator    Asks for config first, then starts portals + desktop apps, then runs orchestrator..USAGE  ","受発
+受発注在庫管理システム
+2026年度 · 物流管理部
+2026/07/01 11:03:02
+高橋 健司 · 物流マネージャー
+高
+受発注在庫業務
+ダッシュボード
+受注処理
+1
+在庫調整
+0
+仕入先連絡
+4
+出荷追跡
+0
+返品処理
+3
+ダッシュボード / 受注処理
+受注処理
+5 件 · 1 件未確認
+受注一覧
+管理ID
+顧客コード
+顧客
+受注番号
+出荷期日
+金額（円）
+ステータス
+ORD-1"
+FP,ses_20260701-055918-MSI,2026-07-01T06:09:09.949Z,0.8416222355688526,1490,keystroke > keystroke > keystroke > keystroke > keystroke > keystroke > screenshot_smart > browser_alert,browser_navigation > screenshot_smart > app_switch > screenshot_smart > browser_navigation > screenshot_smart > mouse_click > browser_click,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/social-insurance
+受発注在庫管理システム
+http://127.0.0.1:5124/#/social-insurance
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+SHP-112927-002: 追跡を更新しました
+受発"
+FP,ses_20260701-035622-SIDDHIGUPTAB00B,2026-07-01T04:00:51.055Z,0.8419204930097155,337,app_switch > app_switch > screenshot_smart > screenshot_smart > app_switch > app_switch > browser_navigation > screenshot_smart,app_switch > app_switch > app_switch > app_switch > app_switch > screenshot_smart > app_switch > mouse_click,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome > 受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5123/#/payroll-items
+財務会計システム
+http://127.0.0.1:5123/#/payroll-items
+財務会計システム
+Chrome didn't shut down correctly.
+EXP-092612-001: 承認しました
+財務
+財務会計システム
+2026年"
+FP,ses_20260701-083656-LAPTOP-0IM1OHQH,2026-07-01T08:54:56.098Z,0.841974659409395,2396,browser_form_input > browser_click > screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart,app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/07/01 14:24:55
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+0
+経費精算承認
+0
+銀行勘定照合
+0
+予算差異分析
+3
+支払処理
+0
+ダッシュボード / 経費精算承認
+経費精算承認
+4 件 · 0 件未処理
+処理待ち経費精算
+管理ID
+申請者ID
+申請者
+費目
+金額（円）
+区分
+ステータス",
+FP,ses_20260630-132737-LAPTOP-R36BQBTE,2026-06-30T13:42:48.699Z,0.8423978008510821,1380,app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > screenshot_smart > app_switch,app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,
+FP,ses_20260630-135451-CHAITANYA0BCF,2026-06-30T14:13:35.136Z,0.8427924766083291,2759,shortcut > keystroke > keystroke > clipboard_change > screenshot_smart > mouse_click > browser_form_input > browser_click,screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch > app_switch > screenshot_smart > app_switch,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/06/30 19:43:37
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+0
+経費精算承認
+4
+銀行勘定照合
+0
+予算差異分析
+0
+支払処理
+0
+ダッシュボード / 予算差異分析
+予算差異分析
+3 件 · 0 件処理待ち
+部門別差異一覧
+管理ID
+部門コード
+部門
+分析種別
+対象年月
+予算/実績/差異"
+FP,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:26:02.818Z,0.8428039504793525,478,keystroke > screenshot_smart > mouse_click > app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart,app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,"Address and search bar
+127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+http://127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+PI-175009-002: 登録確定しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 17:56:01
+田中 麻里 · 人事マネージ",
+FP,ses_20260701-070320-JAYESH,2026-07-01T07:27:19.071Z,0.8434212644376811,3318,app_switch > app_switch > app_switch > screenshot_smart > app_switch > screenshot_smart > app_switch > screenshot_smart,app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > app_switch,Windows Explorer > Google Chrome,Google Chrome,documents - File Explorer > 財務会計システム - Google Chrome,財務会計システム - Google Chrome,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/07/01 12:57:17
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+0
+経費精算承認
+0
+銀行勘定照合
+0
+予算差異分析
+0
+支払処理
+0
+ダッシュボード / 銀行勘定照合
+銀行勘定照合
+4 件 · 0 件処理待ち
+口座照合一覧
+管理ID
+口座ID
+口座
+預金種別
+銀行残高
+帳簿差異
+ステータス",
+FP,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T06:02:38.047Z,0.8436880778159178,1602,app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > screenshot_smart > app_switch,app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,
+FP,ses_20260701-062250-Marcos,2026-07-01T06:28:29.501Z,0.8438127724073272,743,screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > keystroke > keystroke > screenshot_smart,app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > clipboard_change > shortcut,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5124/#/leave-applications
+受発注在庫管理システム
+http://127.0.0.1:5124/#/leave-applications
+受発注在庫管理システム
+Chrome didn't shut down correctly.
+SUP-115207-001: 仕入先連絡を完了"
+FP,ses_20260701-075548-CHAITANYA0BCF,2026-07-01T08:01:38.282Z,0.8439104658039495,747,clipboard_change > shortcut > keystroke > keystroke > screenshot_smart > upload_completed > app_switch > screenshot_smart,shortcut > keystroke > keystroke > clipboard_change > shortcut > keystroke > keystroke > screenshot_smart,Google Chrome > Notepad,Notepad,受発注在庫管理システム - Google Chrome > *Untitled - Notepad,*Untitled - Notepad,"Text editor
+----------------------------------------Resident tax notice received. Special collection 34,600 JPY/month confirmed. Within normal range. Marked confirmed.-----------------------------",
+FP,ses_20260701-051850-LAPTOP-R36BQBTE,2026-07-01T05:34:02.165Z,0.8439214416636232,1801,shortcut > keystroke > keystroke > mouse_click > shortcut > keystroke > keystroke > screenshot_smart,mouse_click > app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart > app_switch > app_switch,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 11:04:04
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+3
+給与備考・控除
+4
+育児・産休申請
+0
+社保・年金補正
+0
+入社照合
+3
+ダッシュボード / 社保・年金補正対応
+社保・年金補正対応
+3 件 · 0 件処理待ち
+補正処理一覧
+管理ID
+社員ID
+氏名
+手続き種別
+対象年"
+FP,ses_20260630-131729-CHAITANYA0BCF,2026-06-30T13:19:22.791Z,0.8439615080871503,103,browser_form_input > browser_click > screenshot_smart > app_switch > screenshot_smart > window_title_change > screenshot_smart > mouse_scroll,app_switch > screenshot_smart > mouse_click > browser_click > screenshot_smart > mouse_scroll > app_switch > screenshot_smart,Google Chrome > Windows Explorer,Google Chrome,HR人事給与システム - Google Chrome > documents - File Explorer,HR人事給与システム - Google Chrome,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:49:03
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+5
+給与備考・控除
+4
+育児・産休申請
+4
+社保・年金補正
+0
+入社照合
+3
+ダッシュボード / 社保・年金補正対応
+社保・年金補正対応
+3 件 · 0 件処理待ち
+補正処理一覧
+管理ID
+社員ID
+氏名
+手続き種別
+対象年","給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:49:22
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+5
+給与備考・控除
+4
+育児・産休申請
+4
+社保・年金補正
+0
+入社照合
+3
+ダッシュボード / 社保・年金補正対応
+社保・年金補正対応
+3 件 · 0 件処理待ち
+補正処理一覧
+管理ID
+社員ID
+氏名
+手続き種別
+対象年"
+FP,ses_20260701-051850-LAPTOP-R36BQBTE,2026-07-01T05:30:58.620Z,0.8442829333333122,1357,mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click > app_switch > screenshot_smart,app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,"受発
+受発注在庫管理システム
+2026年度 · 物流管理部
+2026/07/01 11:00:57
+高橋 健司 · 物流マネージャー
+高
+受発注在庫業務
+ダッシュボード
+受注処理
+2
+在庫調整
+0
+仕入先連絡
+4
+出荷追跡
+0
+返品処理
+3
+ダッシュボード / 受注処理
+受注処理
+5 件 · 2 件未確認
+受注一覧
+管理ID
+顧客コード
+顧客
+受注番号
+出荷期日
+金額（円）
+ステータス
+ORD-1",
+FP,ses_20260701-030836-yuvraj,2026-07-01T03:23:31.199Z,0.8443974633118242,1597,browser_click > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > keystroke > keystroke,screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > screenshot_smart,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5123/#/payroll-items
+財務会計システム
+http://127.0.0.1:5123/#/payroll-items
+財務会計システム
+Chrome didn't shut down correctly.
+EXP-083800-004: 承認しました
+財務
+財務会計システム
+2026年"
+FP,ses_20260630-135201-LAPTOP-R36BQBTE,2026-06-30T14:01:00.232Z,0.844486323346514,755,app_switch > app_switch > app_switch > app_switch > app_switch > app_switch > screenshot_smart > app_switch,app_switch > app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome,,
+FN_candidate,ses_20260701-131015-SIDDHIGUPTAB00B,2026-07-01T13:31:07.686Z,1.4443374192299368e-05,2489,window_state_change > screenshot_smart > app_switch > app_switch > app_switch > app_switch > screenshot_smart > screenshot_smart,app_switch > browser_click > browser_click > browser_form_input > browser_click > app_switch > app_switch > app_switch,WindowsTerminal,WindowsTerminal > Google Chrome,Windows PowerShell,Windows PowerShell > HR人事給与システム - Google Chrome,"Windows PowerShell                                                                                                      
+Copyright (C) Microsoft Corporation. All rights reserved.                     ",
+FN_candidate,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T05:58:19.812Z,0.005567456220755047,1064,keystroke > keystroke > mouse_click > shortcut > keystroke > keystroke > screenshot_smart > clipboard_change,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > dialog_opened,Google Chrome,Google Chrome > Notepad,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome > *launch_m1.ps1 - Notepad > Open,,"Text editor
+#Requires -Version 5.1<#.SYNOPSIS    Launch Theme M1 -- Mixed Multi-Domain Orchestrator    Asks for config first, then starts portals + desktop apps, then runs orchestrator..USAGE  "
+FN_candidate,ses_20260701-035622-SIDDHIGUPTAB00B,2026-07-01T04:23:14.471Z,0.01432684144093761,2858,shortcut > keystroke > keystroke > screenshot_smart > mouse_click > browser_form_input > browser_click > screenshot_smart,app_switch > app_switch > screenshot_smart > app_switch > mouse_click > browser_click > screenshot_smart > app_switch,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome > HR人事給与システム - Google Chrome,,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 09:53:13
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+5
+給与備考・控除
+0
+育児・産休申請
+4
+社保・年金補正
+0
+入社照合
+0
+ダッシュボード / 社保・年金補正対応
+社保・年金補正対応
+3 件 · 0 件処理待ち
+補正処理一覧
+管理ID
+社員ID
+氏名
+手続き種別
+対象年"
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:31:03.248Z,0.015815468662416367,1208,keystroke > screenshot_smart > mouse_click > app_switch > app_switch > screenshot_smart > app_switch > screenshot_smart,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Google Chrome > Settings,Google Chrome,HR人事給与システム - Google Chrome > Settings,HR人事給与システム - Google Chrome,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:00:56
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+3
+給与備考・控除
+4
+育児・産休申請
+0
+社保・年金補正
+3
+入社照合
+3
+ダッシュボード / 育児・産休申請確認
+育児・産休申請確認
+4 件 · 0 件申請中
+申請一覧
+管理ID
+社員ID
+氏名
+休業種別
+期間
+部署
+ス","Address and search bar
+127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+http://127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+LA-175009-003: 申請を承認しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:01:04
+田中 麻里 · 人事マネー"
+FN_candidate,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T05:57:51.784Z,0.021574461890601845,986,app_switch > app_switch > app_switch > app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart,mouse_click > clipboard_change > shortcut > keystroke > keystroke > screenshot_smart > mouse_click > app_switch,Notepad,Google Chrome,*launch_m1.ps1 - Notepad,財務会計システム - Google Chrome,,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/07/01 11:27:57
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+5
+経費精算承認
+0
+銀行勘定照合
+4
+予算差異分析
+0
+支払処理
+3
+ダッシュボード / 予算差異分析
+予算差異分析
+3 件 · 0 件処理待ち
+部門別差異一覧
+管理ID
+部門コード
+部門
+分析種別
+対象年月
+予算/実績/差異"
+FN_candidate,ses_20260701-043922-SIDDHIGUPTAB00B,2026-07-01T05:08:21.970Z,0.021640221851187642,2479,keystroke > keystroke > clipboard_change > shortcut > keystroke > keystroke > app_switch > screenshot_smart,app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart > browser_navigation > screenshot_smart > app_switch,Notepad,Notepad > Google Chrome,*Untitled - Notepad,*Untitled - Notepad > 財務会計システム - Google Chrome,,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/07/01 10:38:23
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+3
+経費精算承認
+0
+銀行勘定照合
+0
+予算差異分析
+0
+支払処理
+0
+ダッシュボード / 銀行勘定照合
+銀行勘定照合
+3 件 · 0 件処理待ち
+口座照合一覧
+管理ID
+口座ID
+口座
+預金種別
+銀行残高
+帳簿差異
+ステータス"
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:28:49.210Z,0.02223224188562985,968,keystroke > keystroke > keystroke > keystroke > keystroke > screenshot_smart > app_switch > screenshot_smart,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/06/30 17:58:42
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+5
+経費精算承認
+4
+銀行勘定照合
+0
+予算差異分析
+3
+支払処理
+3
+ダッシュボード / 銀行勘定照合
+銀行勘定照合
+4 件 · 0 件処理待ち
+口座照合一覧
+管理ID
+口座ID
+口座
+預金種別
+銀行残高
+帳簿差異
+ステータス","Address and search bar
+127.0.0.1:5123/#/onboarding
+財務会計システム
+http://127.0.0.1:5123/#/onboarding
+財務会計システム
+BR-175009-004: 照合を完了しました
+財務
+財務会計システム
+2026年度 · 経理部門
+2026/06/30 17:58:50
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務"
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:38:13.357Z,0.024914562707631233,2003,app_switch > screenshot_smart > mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Microsoft Word > Google Chrome,Google Chrome,Supplier_List  -  Compatibility Mode - Word > HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Address and search bar
+127.0.0.1:5122/#/onboarding
+HR人事給与システム
+http://127.0.0.1:5122/#/onboarding
+HR人事給与システム
+LA-175009-004: 申請を承認しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:08:16
+田中 麻里 · 人事マネージャー
+田
+"
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:30:20.229Z,0.030100965955393254,1165,app_switch > screenshot_smart > mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Notepad > Google Chrome,Google Chrome,*SETUP.md - Notepad > HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Address and search bar
+127.0.0.1:5122/#/leave-applications
+HR人事給与システム
+http://127.0.0.1:5122/#/leave-applications
+HR人事給与システム
+RT-175009-003: 確認済みに更新しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:00:21
+田"
+FN_candidate,ses_20260701-043922-SIDDHIGUPTAB00B,2026-07-01T04:49:09.526Z,0.04270716105981818,929,screenshot_smart > app_switch > screenshot_smart > app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart,browser_navigation > screenshot_smart > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Restore pages?
+Address and search bar
+127.0.0.1:5122/#/payroll-items"
+FN_candidate,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T05:53:43.801Z,0.04471384781216911,551,screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > keystroke > keystroke > screenshot_smart,app_switch > screenshot_smart > app_switch > app_switch > screenshot_smart > shortcut > keystroke > keystroke,Microsoft Word,Microsoft Word > Notepad,Supplier_List  -  Compatibility Mode - Word,Supplier_List  -  Compatibility Mode - Word > *launch_m1.ps1 - Notepad,,"Text editor
+#Requires -Version 5.1<#.SYNOPSIS    Launch Theme M1 -- Mixed Multi-Domain Orchestrator    Asks for config first, then starts portals + desktop apps, then runs orchestrator..USAGE  "
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:36:03.971Z,0.050628239378193336,1707,screenshot_smart > mouse_click > app_switch > screenshot_smart > window_title_change > screenshot_smart > app_switch > screenshot_smart,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Google Chrome > Windows Explorer,Google Chrome,財務会計システム - Google Chrome > documents - File Explorer,財務会計システム - Google Chrome,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/06/30 18:05:57
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+5
+経費精算承認
+0
+銀行勘定照合
+0
+予算差異分析
+3
+支払処理
+0
+ダッシュボード / 経費精算承認
+経費精算承認
+4 件 · 0 件未処理
+処理待ち経費精算
+管理ID
+申請者ID
+申請者
+費目
+金額（円）
+区分
+ステータス","Address and search bar
+127.0.0.1:5123/#/onboarding
+財務会計システム
+http://127.0.0.1:5123/#/onboarding
+財務会計システム
+EXP-175009-004: 承認しました
+財務
+財務会計システム
+2026年度 · 経理部門
+2026/06/30 18:06:04
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダ"
+FN_candidate,ses_20260701-065151-CHAITANYA0BCF,2026-07-01T06:55:19.537Z,0.057673367679345056,216,screenshot_smart > app_switch > mouse_scroll > app_switch > app_switch > screenshot_smart > app_switch > screenshot_smart,app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch > app_switch,Windows Explorer > Google Chrome,Google Chrome,documents - File Explorer > HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,"給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/07/01 12:25:18
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+住民税通知
+5
+給与備考・控除
+4
+育児・産休申請
+0
+社保・年金補正
+3
+入社照合
+3
+ダッシュボード / 育児・産休申請確認
+育児・産休申請確認
+4 件 · 0 件申請中
+申請一覧
+管理ID
+社員ID
+氏名
+休業種別
+期間
+部署
+ス",
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:22:29.004Z,0.07859978148728139,218,app_switch > screenshot_smart > mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Notepad > Google Chrome,Google Chrome,*SETUP.md - Notepad > HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,承認。橋本 清分処理完了。,"Address and search bar
+127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+http://127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+LA-175009-001: 申請を承認しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 17:52:30
+田中 麻里 · 人事マネー"
+FN_candidate,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T06:05:36.945Z,0.07947455156208216,1989,keystroke > shortcut > keystroke > keystroke > screenshot_smart > keystroke > keystroke > screenshot_smart,keystroke > keystroke > screenshot_smart > app_switch > screenshot_smart > shortcut > keystroke > keystroke,Google Chrome,Google Chrome > Notepad,受発注在庫管理システム - Google Chrome,受発注在庫管理システム - Google Chrome > *launch_m1.ps1 - Notepad,,
+FN_candidate,ses_20260701-081120-SIDDHIGUPTAB00B,2026-07-01T08:40:32.504Z,0.0826658273969856,1099,keystroke > clipboard_change > mouse_click > browser_form_input > browser_click > browser_navigation > screenshot_smart > browser_navigation,screenshot_smart > browser_navigation > screenshot_smart > browser_click > browser_click > browser_form_input > browser_click > mouse_click,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:24:57.272Z,0.08689433953197515,447,mouse_scroll > screenshot_smart > mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Google Chrome,Google Chrome,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome,,"Address and search bar
+127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+http://127.0.0.1:5122/#/payroll-items
+HR人事給与システム
+LA-175009-002: 申請を承認しました
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 17:54:58
+田中 麻里 · 人事マネー"
+FN_candidate,ses_20260701-054901-LAPTOP-R36BQBTE,2026-07-01T06:04:43.347Z,0.09580960795020955,1855,keystroke > keystroke > screenshot_smart > keystroke > keystroke > keystroke > keystroke > screenshot_smart,shortcut > keystroke > keystroke > shortcut > keystroke > keystroke > screenshot_smart > app_switch,Google Chrome,Google Chrome > Notepad,HR人事給与システム - Google Chrome,HR人事給与システム - Google Chrome > *launch_m1.ps1 - Notepad,,"Text editor
+#Requires -Version 5.1<#.SYNOPSIS    Launch Theme M1 -- Mixed Multi-Domain Orchestrator    Asks for config first, then starts portals + desktop apps, then runs orchestrator..USAGE  "
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:32:50.620Z,0.10365644749872367,1372,keystroke > keystroke > keystroke > keystroke > keystroke > keystroke > screenshot_smart > screenshot_smart,mouse_click > app_switch > screenshot_smart > shortcut > keystroke > keystroke > screenshot_smart > shortcut,Google Chrome,Google Chrome,ProcMine SSO — シングルサインオン - Google Chrome,HR人事給与システム - Google Chrome,,"Address and search bar
+127.0.0.1:5122/#/onboarding
+HR人事給与システム
+http://127.0.0.1:5122/#/onboarding
+HR人事給与システム
+給与
+HR人事給与システム
+2026年度 · 人事部門
+2026/06/30 18:02:52
+田中 麻里 · 人事マネージャー
+田
+人事給与業務
+ダッシュボード
+http://127"
+FN_candidate,ses_20260630-121953-LAPTOP-R36BQBTE,2026-06-30T12:26:32.659Z,0.10721204701260097,573,mouse_click > shortcut > keystroke > keystroke > screenshot_smart > mouse_click > app_switch > screenshot_smart,app_switch > app_switch > app_switch > screenshot_smart > app_switch > app_switch > app_switch > app_switch,Google Chrome,Google Chrome,財務会計システム - Google Chrome,財務会計システム - Google Chrome,"財務
+財務会計システム
+2026年度 · 経理部門
+2026/06/30 17:56:31
+佐藤 直樹 · 経理マネージャー
+佐
+財務会計業務
+ダッシュボード
+請求書承認
+5
+経費精算承認
+4
+銀行勘定照合
+0
+予算差異分析
+3
+支払処理
+3
+ダッシュボード / 銀行勘定照合
+銀行勘定照合
+4 件 · 0 件処理待ち
+口座照合一覧
+管理ID
+口座ID
+口座
+預金種別
+銀行残高
+帳簿差異
+ステータス",

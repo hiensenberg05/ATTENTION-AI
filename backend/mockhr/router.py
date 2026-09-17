@@ -13,7 +13,7 @@ this app renders are the ones declared in `execution/screens.py`; if the two eve
 drift apart, the browser tests fail loudly.
 
 Both screens mirror what was directly observed in the Dataset B screenshots
-(`phase2_dataset_b/visual_audit.md`):
+(`phase2/results/visual_audit.md`):
 
     /leave-applications  管理ID / 社員ID / 氏名 / 申請種別 / 期間 / 所属部署 /
                          ステータス, a 参照 note carrying 事前承認要否, a

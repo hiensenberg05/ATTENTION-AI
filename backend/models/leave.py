@@ -2,7 +2,7 @@
 
 Field set is derived from what was actually visible in the Dataset B HR system
 (`127.0.0.1:5132/#/leave-applications`), confirmed by screenshot in
-`phase2_dataset_b/visual_audit.md`:
+`phase2/results/visual_audit.md`:
 
     管理ID      -> record_id                  (P2-07048822-006)
     社員ID      -> employee_id                (E2001)

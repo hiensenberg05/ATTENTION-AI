@@ -5,7 +5,7 @@
       "segment_id": "ses_20260701-190250-NEELA9BAF::seg002",
       "screenshot": "dataset_b/ses_20260701-190250-NEELA9BAF/chunk_20260701-1900-NEELA9BAF/screenshots/scr_smart_1782932706344_monitor_1_post.jpg",
       "system": "HR人事給与システム @ 127.0.0.1:5132/#/payroll-items",
-      "documented_in": "phase2_dataset_b/visual_audit.md, phase2_dataset_b/step3_prototype_spec.md"
+      "documented_in": "phase2/results/visual_audit.md, phase2/results/step3_prototype_spec.md"
     },
     "identifier_caveat": "The regex-matched case ids attached to that segment (INV-2026-79xx) were dashboard list-view noise, NOT the record actually processed. The real key is 管理ID + 社員ID.",
     "demo_record_caveat": "Every DEMO-PAY-* record is fabricated to exercise a code path and is NEVER to be presented as observed behaviour. The DEMO- prefix makes that unmistakable at a glance in the UI, the API and the audit trail."

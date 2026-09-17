@@ -1,0 +1,5 @@
+primary_context,variant_id,frequency,pct_of_context,median_duration_seconds,duration_ratio_vs_context_median,median_event_count,event_count_ratio_vs_context_median,interpretation,same_automation_plausible,n_workers,representative_segment_id
+127.0.0.1:5132#payroll-items,B-127.0.0.1_5132_payroll-items-v2,38,97.4,33.56,1.16,67.0,1.05,likely optional branch of same workflow,True,4,ses_20260701-171614-CHAITANYA0BCF::seg003
+127.0.0.1:5132#payroll-items,B-127.0.0.1_5132_payroll-items-v1,1,2.6,0.47,0.02,8.0,0.12,possibly a different process sharing the same app/route -- needs manual review,False,1,ses_20260701-175258-LAPTOP-76QMG9DE::seg011
+Microsoft Word,B-Microsoft_Word-v1,11,78.6,35.9,1.65,67.0,1.37,likely optional branch of same workflow,True,3,ses_20260701-190250-NEELA9BAF::seg013
+Microsoft Word,B-Microsoft_Word-v2,3,21.4,3.79,0.17,9.0,0.18,possibly a different process sharing the same app/route -- needs manual review,False,3,ses_20260701-181913-SIDDHIGUPTAB00B::seg005

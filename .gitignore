@@ -1,28 +1,39 @@
-﻿__pycache__/
+__pycache__/
 .pytest_cache/
 
 # Local environments and secrets
 .env
 .env.*
+!.env.example
 env/
 .venv/
 venv/
 
-# Generated tabular and extra data
+# Editor / tooling scratch
+.kilo/
+
+# ── Generated tabular data ──────────────────────────────────────────────────
+# Ignored by default: phase 0 profiling dumps and anything else regenerable.
 *.csv
 extra_data/
+outputs/tables/*.parquet
+outputs/profiles/*.csv
 
-# Keep the required datasets tracked
+# ...but the Phase 1 and Phase 2 result tables ARE the analysis. They back every
+# number in the final report, so they are tracked, not regenerated on trust.
+!phase1/results/**/*.csv
+!phase2/results/**/*.csv
+
+# The one exception: boundary_results.csv is the full per-candidate score dump,
+# ~66 MB per variant (~330 MB total). It is a reproducible intermediate — rerun
+# phase1/src/phase1f*_segmentation.py to rebuild it.
+phase1/results/**/boundary_results.csv
+
+# Required datasets stay tracked
 !dataset_a/
 !dataset_a/**
 !dataset_b/
 !dataset_b/**
-
-outputs/tables/*.parquet
-outputs/profiles/*.csv
-
-# Secrets: the template is tracked, real .env files never are
-!.env.example
 
 # Node / frontend build output
 node_modules/

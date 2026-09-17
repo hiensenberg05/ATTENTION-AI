@@ -6,7 +6,7 @@
  *    ids, names, request types, dates, departments and provenance. When the API
  *    layer is switched to live FastAPI calls these rows are simply replaced.
  *  - Workflow evidence numbers (23 executions / 18.63 min, etc.) are the REAL
- *    Phase 2 measurements from `phase2_dataset_b/automation_candidates.csv`.
+ *    Phase 2 measurements from `phase2/results/automation_candidates.csv`.
  *  - Everything else — job states, run history, aggregate counters — is
  *    fabricated UI state for this stage and is labelled as demo data in the UI.
  *    No agent has run yet, so no number here is a real performance claim.
