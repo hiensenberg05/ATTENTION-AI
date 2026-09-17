@@ -114,6 +114,11 @@ def enforce(
         decision=decision,
         reason=reason,
         confidence=confidence,
+        # Structured, so "how often did Python have to overrule the model?" is a
+        # query rather than a regex over prose.
+        policy_engine_decision=evaluation.decision,
+        model_decision=draft.decision,
+        guard_overrides=notes,
         # The audit trail is always the deterministic evaluation's, never the model's.
         policy_checks=evaluation.checks,
         human_review_required=human_review_required,

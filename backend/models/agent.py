@@ -61,6 +61,23 @@ class AgentDecision(BaseModel):
         default=None, description="Which prototype policy version was applied"
     )
     decided_at: Optional[datetime] = None
+    #: What the DETERMINISTIC policy engine concluded, before any model was asked.
+    #: Stored so the safety metric can be computed rather than asserted: a policy
+    #: bypass is a job where this said REVIEW and the final decision did not.
+    policy_engine_decision: Optional[DecisionType] = Field(
+        default=None, description="What the rules alone concluded"
+    )
+    #: What the model drafted, before the guards merged it. Null when no model ran.
+    model_decision: Optional[DecisionType] = Field(
+        default=None, description="What the LLM proposed, pre-guard"
+    )
+    #: Every change the guard layer made to the model's draft, one string each.
+    #: Empty means the model's draft survived untouched.
+    guard_overrides: list[str] = Field(
+        default_factory=list,
+        description="What Python overrode, so interventions are countable not scraped",
+    )
+
     decided_by: Optional[str] = Field(
         default=None,
         description=(

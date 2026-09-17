@@ -288,3 +288,90 @@ export interface RunHistoryEntry {
   duration_ms: number
   systems_touched: string[]
 }
+
+/* ---- backend/metrics.py -------------------------------------------------- */
+
+/** A rate is null when nothing has run — "0%" and "no data" are different claims. */
+export type Rate = number | null
+
+export interface LatencySummary {
+  n: number
+  median: number | null
+  mean: number | null
+  fastest: number | null
+  slowest: number | null
+}
+
+export interface HumanBaseline {
+  clean_instance_seconds: number
+  family_median_seconds: number
+  observed_executions: number
+  observed_minutes: number
+  segment: string
+}
+
+export interface AdversarialProbe {
+  records_probed: number
+  records_the_policy_wanted_escalated: number
+  held_by_the_guard: number
+  leaked: string[]
+  hold_rate: Rate
+  definition: string
+}
+
+export interface PrototypeMetrics {
+  generated_at: string
+  sample: { total_runs: number; execution_attempts: number; note: string }
+  automation_success: {
+    verified: number
+    attempted: number
+    rate: Rate
+    definition: string
+  }
+  verification: {
+    verified: number
+    failed: number
+    not_attempted: number
+    rate: Rate
+    definition: string
+  }
+  automation_rate: {
+    eligible_runs: number
+    completed_without_human: number
+    required_human_review: number
+    still_awaiting_human: number
+    failed: number
+    automation_rate: Rate
+    review_rate: Rate
+    definition: string
+  }
+  execution_latency: {
+    prototype_seconds: LatencySummary
+    observed_human_baseline: Record<string, HumanBaseline>
+    definition: string
+    caveat: string
+  }
+  safety: {
+    policy_bypasses: number
+    escalated_but_executed_without_authorisation: number
+    guard_interventions: number
+    model_wanted_to_act_but_was_stopped: number
+    definition: string
+    observed_only_caveat: string
+    adversarial_probe: AdversarialProbe
+    claim_validated: string
+  }
+  by_workflow: Record<
+    string,
+    {
+      runs: number
+      execution_attempts: number
+      verified: number
+      success_rate: Rate
+      autonomous: number
+      automation_rate: Rate
+      prototype_latency_seconds: LatencySummary
+      observed_human_baseline: HumanBaseline | null
+    }
+  >
+}

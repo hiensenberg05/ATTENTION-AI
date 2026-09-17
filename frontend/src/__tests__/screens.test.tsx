@@ -28,6 +28,7 @@ import {
   leaveRequests,
   payrollItems,
   payrollJobs,
+  prototypeMetrics,
   runHistory,
   systemConnectors,
   throughputSeries,
@@ -66,6 +67,7 @@ vi.mock('@/services/api', () => ({
     return found
   },
   fetchRunHistory: async () => runHistory,
+  fetchPrototypeMetrics: async () => prototypeMetrics,
   fetchDashboard: async () => ({
     metrics: computeMetrics(),
     decisions: decisionDistribution(),
@@ -328,6 +330,41 @@ describe('payroll confirmation', () => {
     for (const job of payrollJobs) {
       if (job.decision?.decision === 'REVIEW') expect(job.execution).toBeNull()
     }
+  })
+})
+
+describe('prototype run metrics', () => {
+  it('renders all five metrics with their real values', async () => {
+    renderAt('/history')
+    await waitFor(() => expect(page().getByText('Prototype run metrics')).toBeTruthy(), settle)
+
+    expect(page().getByText('Automation success rate')).toBeTruthy()
+    // "Verification" also labels a column in the run table below.
+    expect(page().getAllByText('Verification').length).toBeGreaterThan(0)
+    expect(page().getByText('Automation / review rate')).toBeTruthy()
+    expect(page().getByText('Execution latency')).toBeTruthy()
+    expect(page().getByText('Safety — policy bypasses')).toBeTruthy()
+    expect(page().getByText('Safety — adversarial probe')).toBeTruthy()
+  })
+
+  it('shows the human baseline beside prototype latency, never subtracted', async () => {
+    renderAt('/history')
+    await waitFor(() => expect(page().getByText('Prototype run metrics')).toBeTruthy(), settle)
+
+    expect(page().getByText(/NOT a savings figure/)).toBeTruthy()
+    // Anchored to the Dataset B segments the baseline came from, which is the
+    // durable fact - not a float's rounding.
+    expect(page().getByText('ses_20260701-180923-NEELA9BAF::seg013')).toBeTruthy()
+    expect(page().getByText('ses_20260701-190250-NEELA9BAF::seg002')).toBeTruthy()
+    expect(page().getAllByText('Human clean instance').length).toBe(2)
+    expect(page().getByText(/THIS IS NOT A SAVINGS FIGURE/)).toBeTruthy()
+  })
+
+  it('states that zero observed bypasses alone proves little', async () => {
+    renderAt('/history')
+    await waitFor(() => expect(page().getByText('Prototype run metrics')).toBeTruthy(), settle)
+    expect(page().getByText(/proves little on its own/)).toBeTruthy()
+    expect(page().getByText('Safety claim holds')).toBeTruthy()
   })
 })
 

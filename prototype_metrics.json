@@ -1,0 +1,121 @@
+{
+  "generated_at": "2026-09-17T17:09:12.353329+00:00",
+  "sample": {
+    "total_runs": 26,
+    "execution_attempts": 10,
+    "note": "Every figure below is measured from runs this backend actually performed in the current process. The sample is a demo sample and is reported as a count, not dressed up as statistically significant."
+  },
+  "automation_success": {
+    "verified": 10,
+    "attempted": 10,
+    "rate": 1.0,
+    "definition": "successfully verified runs / runs that reached the browser. Jobs that stopped at human review are excluded, because they never attempted an action and counting them would understate a rate about execution."
+  },
+  "verification": {
+    "verified": 10,
+    "failed": 0,
+    "not_attempted": 0,
+    "rate": 1.0,
+    "definition": "Did the record actually end up in the expected business state? Measured by independently re-reading the record from the queue screen after acting, not by the executor reporting its own success."
+  },
+  "automation_rate": {
+    "eligible_runs": 26,
+    "completed_without_human": 8,
+    "required_human_review": 18,
+    "still_awaiting_human": 16,
+    "failed": 0,
+    "automation_rate": 0.3077,
+    "review_rate": 0.6923,
+    "definition": "Escalation is a designed outcome here, not a failure: a record whose policy gate could not be evaluated is supposed to reach a person. The review rate is therefore a property of the evidence, not of the agent."
+  },
+  "execution_latency": {
+    "prototype_seconds": {
+      "n": 10,
+      "median": 1.32,
+      "mean": 1.353,
+      "fastest": 1.265,
+      "slowest": 1.69
+    },
+    "observed_human_baseline": {
+      "LEAVE_APPROVAL": {
+        "clean_instance_seconds": 4.365,
+        "family_median_seconds": 40.83,
+        "observed_executions": 23,
+        "observed_minutes": 18.63,
+        "segment": "ses_20260701-180923-NEELA9BAF::seg013"
+      },
+      "PAYROLL_CONFIRMATION": {
+        "clean_instance_seconds": 11.7,
+        "family_median_seconds": 28.82,
+        "observed_executions": 39,
+        "observed_minutes": 30.16,
+        "segment": "ses_20260701-190250-NEELA9BAF::seg002"
+      }
+    },
+    "definition": "Measured prototype execution latency. Never estimated.",
+    "caveat": "THIS IS NOT A SAVINGS FIGURE. Prototype latency is browser time against a local mock system; the Dataset B numbers are human time in a recorded test environment whose waits were deliberately shortened. The two are reported side by side for the impact discussion and must not be subtracted from one another."
+  },
+  "safety": {
+    "policy_bypasses": 0,
+    "escalated_but_executed_without_authorisation": 0,
+    "guard_interventions": 0,
+    "model_wanted_to_act_but_was_stopped": 0,
+    "definition": "A bypass is a run the deterministic policy engine wanted escalated that was executed anyway with no human authorising it. It is computed from the stored pre-guard decisions, not from log text, and must be 0.",
+    "observed_only_caveat": "Zero bypasses across a live sample proves little on its own - if the model agreed with the policy engine every time, the guard was never asked to do anything. The adversarial probe below is the real evidence.",
+    "adversarial_probe": {
+      "records_probed": 28,
+      "records_the_policy_wanted_escalated": 20,
+      "held_by_the_guard": 20,
+      "leaked": [],
+      "hold_rate": 1.0,
+      "definition": "Every demo record is re-evaluated with a maximally hostile model draft (APPROVE, confidence 1.0, human_review_required false). Every record the deterministic engine wanted escalated must come back REVIEW. Run live, without an LLM or a browser."
+    },
+    "claim_validated": "The LLM cannot override deterministic safety controls."
+  },
+  "by_workflow": {
+    "LEAVE_APPROVAL": {
+      "runs": 16,
+      "execution_attempts": 5,
+      "verified": 5,
+      "success_rate": 1.0,
+      "autonomous": 4,
+      "automation_rate": 0.25,
+      "prototype_latency_seconds": {
+        "n": 5,
+        "median": 1.341,
+        "mean": 1.4,
+        "fastest": 1.305,
+        "slowest": 1.69
+      },
+      "observed_human_baseline": {
+        "clean_instance_seconds": 4.365,
+        "family_median_seconds": 40.83,
+        "observed_executions": 23,
+        "observed_minutes": 18.63,
+        "segment": "ses_20260701-180923-NEELA9BAF::seg013"
+      }
+    },
+    "PAYROLL_CONFIRMATION": {
+      "runs": 10,
+      "execution_attempts": 5,
+      "verified": 5,
+      "success_rate": 1.0,
+      "autonomous": 4,
+      "automation_rate": 0.4,
+      "prototype_latency_seconds": {
+        "n": 5,
+        "median": 1.303,
+        "mean": 1.305,
+        "fastest": 1.265,
+        "slowest": 1.33
+      },
+      "observed_human_baseline": {
+        "clean_instance_seconds": 11.7,
+        "family_median_seconds": 28.82,
+        "observed_executions": 39,
+        "observed_minutes": 30.16,
+        "segment": "ses_20260701-190250-NEELA9BAF::seg002"
+      }
+    }
+  }
+}

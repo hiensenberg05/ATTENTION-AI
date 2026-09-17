@@ -30,8 +30,9 @@ import {
 } from '@/components/ui'
 import { Donut, StackedBars } from '@/components/charts'
 import { DecisionBadge, DemoDataNotice } from '@/components/domain'
+import { PrototypeMetricsPanel } from '@/components/domain/PrototypeMetricsPanel'
 import { useAsync } from '@/hooks/useAsync'
-import { fetchDashboard, fetchRunHistory } from '@/services/api'
+import { fetchDashboard, fetchPrototypeMetrics, fetchRunHistory } from '@/services/api'
 import { clockTime, ms, pct, relativeTime, seconds, shortDate } from '@/lib/format'
 
 type TabId = 'all' | 'approved' | 'review' | 'overridden' | 'failed'
@@ -40,6 +41,7 @@ export default function AuditHistory() {
   const navigate = useNavigate()
   const runsQ = useAsync(fetchRunHistory, [])
   const dashQ = useAsync(fetchDashboard, [])
+  const metricsQ = useAsync(fetchPrototypeMetrics, [])
   const [tab, setTab] = useState<TabId>('all')
   const [query, setQuery] = useState('')
 
@@ -110,6 +112,13 @@ export default function AuditHistory() {
           </>
         }
       />
+
+      {/* The five metrics that go in the report, computed backend-side. */}
+      {metricsQ.data && (
+        <div className="mb-5">
+          <PrototypeMetricsPanel m={metricsQ.data} />
+        </div>
+      )}
 
       <div className="mb-5">
         <DemoDataNotice>

@@ -18,6 +18,7 @@ import type {
   ExecutionResult,
   LeaveRequest,
   PayrollItem,
+  PrototypeMetrics,
   QueueStage,
   QueueTask,
   RunHistoryEntry,
@@ -903,3 +904,101 @@ function payrollDetailLine(rec: PayrollItem): string {
 
 /** Both queues, as the live `fetchQueue` assembles them. */
 export const allQueueTasks: QueueTask[] = [...queueTasks, ...payrollQueueTasks]
+
+/* ========================================================================== */
+/* Prototype run metrics - mirrors GET /api/metrics                           */
+/* ========================================================================== */
+
+export const prototypeMetrics: PrototypeMetrics = {
+  generated_at: minsAgo(1),
+  sample: {
+    total_runs: 26,
+    execution_attempts: 10,
+    note: 'Measured from runs this backend actually performed.',
+  },
+  automation_success: {
+    verified: 10,
+    attempted: 10,
+    rate: 1.0,
+    definition: 'successfully verified runs / runs that reached the browser.',
+  },
+  verification: {
+    verified: 10,
+    failed: 0,
+    not_attempted: 0,
+    rate: 1.0,
+    definition: 'Did the record actually end up in the expected business state?',
+  },
+  automation_rate: {
+    eligible_runs: 26,
+    completed_without_human: 8,
+    required_human_review: 18,
+    still_awaiting_human: 16,
+    failed: 0,
+    automation_rate: 0.3077,
+    review_rate: 0.6923,
+    definition: 'Escalation is a designed outcome here, not a failure.',
+  },
+  execution_latency: {
+    prototype_seconds: { n: 10, median: 1.32, mean: 1.392, fastest: 1.292, slowest: 1.685 },
+    observed_human_baseline: {
+      LEAVE_APPROVAL: {
+        clean_instance_seconds: 4.365,
+        family_median_seconds: 40.83,
+        observed_executions: 23,
+        observed_minutes: 18.63,
+        segment: 'ses_20260701-180923-NEELA9BAF::seg013',
+      },
+      PAYROLL_CONFIRMATION: {
+        clean_instance_seconds: 11.7,
+        family_median_seconds: 28.82,
+        observed_executions: 39,
+        observed_minutes: 30.16,
+        segment: 'ses_20260701-190250-NEELA9BAF::seg002',
+      },
+    },
+    definition: 'Measured prototype execution latency. Never estimated.',
+    caveat:
+      'THIS IS NOT A SAVINGS FIGURE. Prototype latency is browser time against a local mock system; the Dataset B numbers are human time in a recorded test environment.',
+  },
+  safety: {
+    policy_bypasses: 0,
+    escalated_but_executed_without_authorisation: 0,
+    guard_interventions: 0,
+    model_wanted_to_act_but_was_stopped: 0,
+    definition: 'A bypass is a run the policy engine wanted escalated that executed anyway.',
+    observed_only_caveat:
+      'Zero bypasses across a live sample proves little on its own - the adversarial probe is the real evidence.',
+    adversarial_probe: {
+      records_probed: 28,
+      records_the_policy_wanted_escalated: 20,
+      held_by_the_guard: 20,
+      leaked: [],
+      hold_rate: 1.0,
+      definition: 'Every record re-evaluated with a maximally hostile model draft.',
+    },
+    claim_validated: 'The LLM cannot override deterministic safety controls.',
+  },
+  by_workflow: {
+    LEAVE_APPROVAL: {
+      runs: 16,
+      execution_attempts: 5,
+      verified: 5,
+      success_rate: 1.0,
+      autonomous: 4,
+      automation_rate: 0.25,
+      prototype_latency_seconds: { n: 5, median: 1.318, mean: 1.35, fastest: 1.292, slowest: 1.5 },
+      observed_human_baseline: null,
+    },
+    PAYROLL_CONFIRMATION: {
+      runs: 10,
+      execution_attempts: 5,
+      verified: 5,
+      success_rate: 1.0,
+      autonomous: 4,
+      automation_rate: 0.4,
+      prototype_latency_seconds: { n: 5, median: 1.322, mean: 1.43, fastest: 1.3, slowest: 1.685 },
+      observed_human_baseline: null,
+    },
+  },
+}

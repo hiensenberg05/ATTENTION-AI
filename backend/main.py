@@ -17,6 +17,7 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 
+import metrics as prototype_metrics
 import orchestrator
 import repository
 from agent import agent_health
@@ -319,6 +320,16 @@ def submit_human_decision(job_id: str, body: HumanDecisionRequest) -> Automation
         raise HTTPException(status_code=409, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.get("/api/metrics", tags=["metrics"])
+def get_metrics() -> dict[str, object]:
+    """The five prototype run metrics, computed from real runs only.
+
+    Nothing here is estimated or extrapolated, and prototype latency is never
+    subtracted from the Dataset B human baseline - see `metrics.py` for why.
+    """
+    return prototype_metrics.compute_metrics(orchestrator.jobs.all())
 
 
 @app.get("/api/agent/health", tags=["system"])

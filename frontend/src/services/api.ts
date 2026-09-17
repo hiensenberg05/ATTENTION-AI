@@ -33,6 +33,7 @@ import type {
   JobState,
   LeaveRequest,
   PayrollItem,
+  PrototypeMetrics,
   QueueStage,
   QueueTask,
   RunHistoryEntry,
@@ -94,6 +95,17 @@ export async function fetchPayrollItems(status?: string): Promise<PayrollItem[]>
 
 export async function fetchPayrollItem(recordId: string): Promise<PayrollItem> {
   return get<PayrollItem>(`/payroll-items/${encodeURIComponent(recordId)}`)
+}
+
+/**
+ * The five prototype run metrics, computed backend-side from real runs only.
+ *
+ * Deliberately NOT derived here: these are the numbers that go in the report, so
+ * they are computed once, in Python, next to the data — not re-derived in the UI
+ * where they could quietly disagree with the backend's own answer.
+ */
+export async function fetchPrototypeMetrics(): Promise<PrototypeMetrics> {
+  return get<PrototypeMetrics>('/metrics')
 }
 
 export async function fetchAgentHealth(): Promise<{
