@@ -30,7 +30,7 @@ from models.leave import LeaveRequest
 from workflows.base import WorkflowDefinition
 
 app = FastAPI(
-    title="Back-Office Automation Agent",
+    title="Attention AI — Back-Office Automation Agent",
     version="0.3.0",
     description=(
         "Bounded workflow-execution prototype built from the Phase 1/2 analysis of "

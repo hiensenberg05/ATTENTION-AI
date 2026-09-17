@@ -378,6 +378,13 @@ export async function fetchDashboard() {
       pendingRecords: records.filter(
         (r) => r.status === '申請中' || r.status === '未処理',
       ).length,
+      // Provenance counts, so no screen has to hardcode "17 demo records".
+      totalRecords: records.length,
+      observedRecords: records.filter((r) => r.provenance === 'dataset_b_observed').length,
+      listObservedRecords: records.filter(
+        (r) => r.provenance === 'dataset_b_list_observed',
+      ).length,
+      syntheticRecords: records.filter((r) => r.provenance === 'synthetic_demo').length,
       llmDecisions: jobs.filter((j) => j.decision?.decided_by === 'llm+policy_guard').length,
     },
     decisions,

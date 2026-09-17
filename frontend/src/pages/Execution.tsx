@@ -30,7 +30,7 @@ import {
 } from '@/components/ui'
 import { DecisionBadge, FieldRow, StateBadge, Timeline } from '@/components/domain'
 import { useAsync } from '@/hooks/useAsync'
-import { fetchJob, fetchJobs } from '@/services/api'
+import { fetchJob, fetchJobs, fetchWorkflow } from '@/services/api'
 import { recordSubtitle, WORKFLOW_LABEL } from '@/lib/record'
 
 import { STATE_LABEL, clockTime, relativeTime, seconds } from '@/lib/format'
@@ -122,7 +122,15 @@ export default function Execution() {
     [jobId],
   )
 
-  /** Simulated run so the step-by-step view is inspectable before Playwright exists. */
+  // The workflow's own Phase 2 evidence, so a payroll run never cites the leave
+  // segment. Loaded lazily; the copy degrades gracefully while it is in flight.
+  const { data: definition } = useAsync(
+    () => (job ? fetchWorkflow(job.workflow) : Promise.resolve(null)),
+    [job?.workflow],
+  )
+  const evidenceSegment = definition?.evidence.clean_instance_segment_id ?? null
+
+  /** Optional replay of the recorded steps, for inspecting a finished run. */
   const [simStep, setSimStep] = useState<number | null>(null)
 
   useEffect(() => {
@@ -141,15 +149,10 @@ export default function Execution() {
   const exec = job.execution
   const decision = job.decision
 
-  const stepNames = exec?.steps_completed.map((s) => s.name) ?? [
-    'Open leave-applications queue',
-    'Locate record row',
-    'Open detail panel',
-    'Read current status',
-    'Click 承認',
-    'Submit',
-    'Re-read status',
-  ]
+  // No fallback list: a job with no execution has not performed any steps, and
+  // inventing a plausible-looking sequence would be indistinguishable from a real
+  // one on screen. An empty list renders the empty state instead.
+  const stepNames = exec?.steps_completed.map((s) => s.name) ?? []
 
   const completedCount =
     simStep !== null
@@ -222,8 +225,15 @@ export default function Execution() {
           <strong className="font-semibold text-ink-700">Real run.</strong> These steps were
           performed by Playwright against the mock HR system, locating every control by{' '}
           <span className="font-mono">data-testid</span> — never by coordinates. The sequence
-          mirrors the human one confirmed by screenshot in Dataset B segment{' '}
-          <span className="font-mono">ses_20260701-180923-NEELA9BAF::seg013</span>.
+          mirrors the human one confirmed by screenshot in Dataset B
+          {evidenceSegment ? (
+            <>
+              {' '}segment <span className="font-mono">{evidenceSegment}</span>
+            </>
+          ) : (
+            ' for this workflow'
+          )}
+          .
         </p>
       </div>
 

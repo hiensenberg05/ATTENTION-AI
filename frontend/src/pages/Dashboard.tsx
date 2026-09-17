@@ -61,6 +61,18 @@ export default function Dashboard() {
   }, {})
   stageCounts.LOADING = metrics.queued
 
+  // The observed human clean-instance times, read from the workflow evidence
+  // rather than typed in. Two workflows now, so it is a range, not one number.
+  const cleanInstances = workflows
+    .map((w) => w.evidence.clean_instance_duration_seconds)
+    .filter((n): n is number => typeof n === 'number')
+    .sort((a, b) => a - b)
+  const humanBaseline = cleanInstances.length
+    ? cleanInstances.length === 1
+      ? `${cleanInstances[0].toFixed(1)}s`
+      : `${cleanInstances[0].toFixed(1)}–${cleanInstances[cleanInstances.length - 1].toFixed(1)}s`
+    : null
+
   const reviewJobs = jobs.filter((j) => j.state === 'HUMAN_REVIEW')
   const recent = [...jobs]
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
@@ -136,8 +148,9 @@ export default function Dashboard() {
           icon={<BookOpenCheck size={15} />}
           footnote={
             <>
-              17 demo records · <span className="text-ok-700 font-semibold">1 observed</span> in
-              Dataset B
+              {metrics.totalRecords} demo records ·{' '}
+              <span className="text-ok-700 font-semibold">{metrics.observedRecords} observed</span>{' '}
+              in Dataset B
             </>
           }
         />
@@ -154,9 +167,14 @@ export default function Dashboard() {
           value={seconds(metrics.avgExecutionSeconds)}
           icon={<Clock size={15} />}
           footnote={
-            <>
-              Human baseline: <span className="tnum">4.4s</span> observed clean instance
-            </>
+            humanBaseline ? (
+              <>
+                Human baseline: <span className="tnum">{humanBaseline}</span> observed clean
+                instance
+              </>
+            ) : (
+              'Human baseline: see workflow evidence'
+            )
           }
         />
         <StatCard

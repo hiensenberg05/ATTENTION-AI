@@ -734,6 +734,17 @@ export function computeMetrics() {
     avgExecutionSeconds: avgDuration,
     pendingRecords: leaveRequests.filter((r) => r.status === '申請中').length,
     llmDecisions: jobs.filter((j) => j.decision?.decided_by === 'llm+policy_guard').length,
+    // Provenance counts across BOTH queues, mirroring services/api.ts.
+    totalRecords: leaveRequests.length + payrollItems.length,
+    observedRecords: [...leaveRequests, ...payrollItems].filter(
+      (r) => r.provenance === 'dataset_b_observed',
+    ).length,
+    listObservedRecords: [...leaveRequests, ...payrollItems].filter(
+      (r) => r.provenance === 'dataset_b_list_observed',
+    ).length,
+    syntheticRecords: [...leaveRequests, ...payrollItems].filter(
+      (r) => r.provenance === 'synthetic_demo',
+    ).length,
   }
 }
 

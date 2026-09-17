@@ -32,7 +32,12 @@ import { Donut, StackedBars } from '@/components/charts'
 import { DecisionBadge, DemoDataNotice } from '@/components/domain'
 import { PrototypeMetricsPanel } from '@/components/domain/PrototypeMetricsPanel'
 import { useAsync } from '@/hooks/useAsync'
-import { fetchDashboard, fetchPrototypeMetrics, fetchRunHistory } from '@/services/api'
+import {
+  fetchDashboard,
+  fetchPrototypeMetrics,
+  fetchRunHistory,
+  fetchWorkflows,
+} from '@/services/api'
 import { clockTime, ms, pct, relativeTime, seconds, shortDate } from '@/lib/format'
 
 type TabId = 'all' | 'approved' | 'review' | 'overridden' | 'failed'
@@ -41,6 +46,7 @@ export default function AuditHistory() {
   const navigate = useNavigate()
   const runsQ = useAsync(fetchRunHistory, [])
   const dashQ = useAsync(fetchDashboard, [])
+  const flowsQ = useAsync(fetchWorkflows, [])
   const metricsQ = useAsync(fetchPrototypeMetrics, [])
   const [tab, setTab] = useState<TabId>('all')
   const [query, setQuery] = useState('')
@@ -57,6 +63,30 @@ export default function AuditHistory() {
   if (runsQ.loading || dashQ.loading || !runsQ.data || !dashQ.data) {
     return <LoadingState label="Loading audit trail…" />
   }
+
+  // Everything Phase 2 measured, read from the workflow definitions the backend
+  // serves. Nothing on this screen restates an evidence figure from memory.
+  const definitions = flowsQ.data ?? []
+  const evidence = definitions.map((w) => ({
+    workflow: w.workflow,
+    label: w.workflow === 'LEAVE_APPROVAL' ? 'leave' : 'payroll',
+    executions: w.evidence.observed_executions,
+    minutes: w.evidence.observed_minutes,
+    cleanInstance: w.evidence.clean_instance_duration_seconds,
+  }))
+  const cleanInstances = evidence
+    .map((e) => e.cleanInstance)
+    .filter((n): n is number => typeof n === 'number')
+    .sort((a, b) => a - b)
+  const humanBaseline = cleanInstances.length
+    ? cleanInstances.length === 1
+      ? `${cleanInstances[0].toFixed(1)}s`
+      : `${cleanInstances[0].toFixed(1)}–${cleanInstances[cleanInstances.length - 1].toFixed(1)}s`
+    : null
+  const payrollDef = definitions.find((w) => w.workflow === 'PAYROLL_CONFIRMATION')
+  const payrollEvidence = payrollDef
+    ? `${payrollDef.evidence.observed_executions} observed in Dataset B`
+    : 'workflow not implemented yet'
 
   const runs = runsQ.data
   const { metrics, throughput } = dashQ.data
@@ -153,9 +183,13 @@ export default function AuditHistory() {
           value={ms(Math.round(avgMs))}
           icon={<FileClock size={15} />}
           footnote={
-            <>
-              Observed human clean instance: <span className="tnum">4.4s</span>
-            </>
+            humanBaseline ? (
+              <>
+                Observed human clean instance: <span className="tnum">{humanBaseline}</span>
+              </>
+            ) : (
+              'Observed human clean instance: see workflow evidence'
+            )
           }
         />
       </div>
@@ -219,15 +253,22 @@ export default function AuditHistory() {
                   </span>
                 </div>
                 <p className="mt-0.5 text-[11px] text-ink-400">
-                  {byWorkflow.payroll} runs · workflow not implemented yet
+                  {byWorkflow.payroll} runs · {payrollEvidence}
                 </p>
               </li>
             </ul>
           </div>
           <p className="mt-4 border-t border-line pt-3 text-[11.5px] leading-snug text-ink-500">
-            Phase 2 measured <span className="tnum font-semibold">23</span> leave and{' '}
-            <span className="tnum font-semibold">39</span> payroll executions in Dataset B — those
-            are the real observations that justified building these two workflows.
+            Phase 2 measured{' '}
+            {evidence.map((e, i) => (
+              <span key={e.workflow}>
+                {i > 0 && ' and '}
+                <span className="tnum font-semibold">{e.executions}</span> {e.label.toLowerCase()}
+              </span>
+            ))}{' '}
+            executions in Dataset B — those are the real observations that justified building
+            these two workflows. They measure what <em>people</em> did, and are never mixed with
+            the prototype run counts above.
           </p>
         </Card>
       </div>

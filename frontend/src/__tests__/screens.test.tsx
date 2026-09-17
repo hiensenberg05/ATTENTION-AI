@@ -333,6 +333,48 @@ describe('payroll confirmation', () => {
   })
 })
 
+describe('no hardcoded figures', () => {
+  it('states record counts from data, not from a literal', async () => {
+    renderAt('/')
+    await waitFor(() => expect(page().getByText('Operations Overview')).toBeTruthy(), settle)
+
+    const total = leaveRequests.length + payrollItems.length
+    const observed = [...leaveRequests, ...payrollItems].filter(
+      (r) => r.provenance === 'dataset_b_observed',
+    ).length
+    // Would have read "17 demo records / 1 observed" forever once payroll shipped.
+    expect(page().getByText(new RegExp(`${total} demo records`))).toBeTruthy()
+    expect(page().getByText(`${observed} observed`)).toBeTruthy()
+  })
+
+  it('quotes Phase 2 evidence from the workflow definitions', async () => {
+    renderAt('/history')
+    await waitFor(() => expect(page().getByText('Breakdown by workflow')).toBeTruthy(), settle)
+    for (const w of workflows) {
+      expect(
+        page().getAllByText(String(w.evidence.observed_executions)).length,
+      ).toBeGreaterThan(0)
+    }
+    // The stale claim that payroll was unbuilt must be gone.
+    expect(page().queryByText(/workflow not implemented yet/)).toBeNull()
+  })
+
+  it('cites the segment belonging to its own workflow, not leave', async () => {
+    renderAt('/execution/JOB-3001') // a payroll run
+    await waitFor(() => expect(page().getByText(/Execution:/)).toBeTruthy(), settle)
+    const payroll = workflows.find((w) => w.workflow === 'PAYROLL_CONFIRMATION')!
+    await waitFor(
+      () =>
+        expect(
+          page().getAllByText(payroll.evidence.clean_instance_segment_id).length,
+        ).toBeGreaterThan(0),
+      settle,
+    )
+    // ...and not the leave segment it used to hardcode.
+    expect(page().queryByText('ses_20260701-180923-NEELA9BAF::seg013')).toBeNull()
+  })
+})
+
 describe('prototype run metrics', () => {
   it('renders all five metrics with their real values', async () => {
     renderAt('/history')

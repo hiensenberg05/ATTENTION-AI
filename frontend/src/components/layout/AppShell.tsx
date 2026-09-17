@@ -66,7 +66,7 @@ function Sidebar() {
         </span>
         <div className="min-w-0">
           <p className="truncate text-[14px] font-bold text-white leading-tight">
-            Back-Office Agent
+            Attention AI
           </p>
           <p className="flex items-center gap-1.5 text-[11px] text-rail-400">
             <Dot tone="ok" /> Step 3 prototype
