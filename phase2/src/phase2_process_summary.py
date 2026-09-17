@@ -63,6 +63,28 @@ def slug(ctx):
     return 'B-' + ctx.replace(' ', '_').replace('/', '_').replace(':', '_').replace('#', '_')[:40]
 
 
+def deliverable_label(ctx):
+    """The label written to segments.jsonl: the process, not the host it ran on.
+
+    `slug()` keeps the host:port because Phase 2's grouping treats system
+    instances as distinct, and every internal CSV depends on that. The submitted
+    file is scored on whether the same process consistently gets the same label,
+    and `payroll-items` on :5132, :5133 and :5134 is one process on three
+    instances — all four workers use all three ports, and the same routes appear
+    across them. So the host is dropped here and only here.
+
+    Segments whose route was never captured are NOT given a business name. They
+    are catchalls, and labelling them as a process would invent a finding.
+    """
+    if '#' in ctx:
+        return ctx.split('#', 1)[1]
+    if ctx.replace('.', '').replace(':', '').isdigit():
+        return 'hr-web-unrouted'          # the HR host, no route captured
+    if ctx == 'Microsoft Edge':
+        return 'browser-unrouted'         # browser work, no host/route captured
+    return ctx.lower().replace(' ', '-').replace('/', '-').replace(':', '-')
+
+
 def build_process_summary(audit):
     """Grouped by primary_context (the process FAMILY, e.g. '5132 payroll-items' across all its
     v1/v2/... sub-variants) -- not by the finer process_type_id_collapsed sub-variant split, which
@@ -212,11 +234,11 @@ def build_representative_segments(audit, summary):
 
 
 def write_segments_jsonl(audit):
-    """Label = the process-FAMILY id (primary_context slug), so sub-variants of the same
-    recurring work unit get the same label by default, per variant_analysis.csv's
-    'likely optional branch' finding for the large majority of variants (see phase2_summary.md).
-    This is a deterministic identifier derived mechanically from dominant app/browser route, not
-    an invented business name.
+    """Label = the process family with the host dropped (see `deliverable_label`), so
+    sub-variants of the same recurring work unit get the same label by default, per
+    variant_analysis.csv's 'likely optional branch' finding for the large majority of
+    variants (see phase2_summary.md). Still a deterministic identifier derived
+    mechanically from the dominant app/browser route, not an invented business name.
 
     Written to two paths from one string: `phase2/results/` (where it belongs as a
     phase output) and `deliverables/` (where it is submitted from). Copying it
@@ -226,7 +248,7 @@ def write_segments_jsonl(audit):
     for r in audit.sort_values(['session_id', 'start_timestamp']).itertuples():
         lines.append(json.dumps({
             'session_id': r.session_id, 'start': r.start_timestamp, 'end': r.end_timestamp,
-            'label': slug(r.primary_context),
+            'label': deliverable_label(r.primary_context),
         }, ensure_ascii=False))
     payload = '\n'.join(lines) + '\n'
 
