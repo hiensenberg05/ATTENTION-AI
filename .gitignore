@@ -20,3 +20,15 @@ extra_data/
 
 outputs/tables/*.parquet
 outputs/profiles/*.csv
+
+# Secrets: the template is tracked, real .env files never are
+!.env.example
+
+# Node / frontend build output
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Playwright
+test-results/
+playwright-report/

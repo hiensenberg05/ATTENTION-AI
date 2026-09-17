@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}休暇申請詳細 {{ record.record_id }} | 社内人事システム{% endblock %}
+{% block body %}
+<nav class="crumbs">
+  ホーム &rsaquo; 勤怠管理 &rsaquo;
+  <a href="{{ base }}/leave-applications" data-testid="back-to-list">休暇申請一覧</a> &rsaquo;
+  <strong>{{ record.record_id }}</strong>
+</nav>
+<main>
+  <h2>休暇申請詳細</h2>
+
+  {% if flash %}
+  <div class="banner banner-ok" data-testid="action-result">{{ flash }}</div>
+  {% endif %}
+  {% if error %}
+  <div class="banner banner-warn" data-testid="action-error">{{ error }}</div>
+  {% endif %}
+
+  <div class="panel" data-testid="detail-panel">
+    <dl class="fields">
+      <dt>管理ID</dt>
+      <dd data-testid="detail-record-id">{{ record.record_id }}</dd>
+
+      <dt>社員ID</dt>
+      <dd data-testid="detail-employee-id">
+        {% if record.employee_id %}{{ record.employee_id }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>氏名</dt>
+      <dd data-testid="detail-employee-name">
+        {% if record.employee_name %}{{ record.employee_name }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>申請種別</dt>
+      <dd data-testid="detail-request-type">
+        {% if record.request_type %}{{ record.request_type }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>期間</dt>
+      <dd data-testid="detail-request-date">
+        {% if record.request_date %}{{ record.request_date }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>所属部署</dt>
+      <dd data-testid="detail-department">
+        {% if record.department %}{{ record.department }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>ステータス</dt>
+      <dd data-testid="detail-status">
+        <span class="status {{ status_class(record.status.value) }}">{{ record.status.value }}</span>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="panel">
+    <strong>参照</strong>
+    <p data-testid="detail-prior-approval">
+      事前承認要否：
+      {% if record.prior_approval_required is none %}
+        <span class="unknown">記載なし</span>
+      {% elif record.prior_approval_required %}要{% else %}不要{% endif %}
+    </p>
+    <p class="note">
+      この欄は申請時点で事前承認が「必要かどうか」のみを示します。実際に承認が取得済みかは
+      当画面には表示されません。
+    </p>
+  </div>
+
+  <form method="post" action="{{ base }}/leave-applications/{{ record.record_id }}/action">
+    <div class="panel">
+      <label for="comment"><strong>承認コメント</strong>（任意）</label>
+      <textarea id="comment" name="comment" data-testid="comment-input"
+                {% if not actionable %}disabled{% endif %}>{{ record.comment or '' }}</textarea>
+
+      <div class="actions">
+        <button type="submit" name="action" value="approve" class="approve"
+                data-testid="approve-button" {% if not actionable %}disabled{% endif %}>承認</button>
+        <button type="submit" name="action" value="reject" class="reject"
+                data-testid="reject-button" {% if not actionable %}disabled{% endif %}>差戻し</button>
+        {% if not actionable %}
+        <span class="note" data-testid="not-actionable-note">
+          この申請は既に処理済みのため操作できません。
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+</main>
+{% endblock %}

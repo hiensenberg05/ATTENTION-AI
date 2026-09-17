@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "what_this_is": "An EXPLICIT PROTOTYPE POLICY, authored by hand for this prototype.",
+    "what_this_is_not": "This is NOT the client company's real business policy, and it was NOT learned or inferred from the operation logs. Dataset B's logs showed only that an operator took an action (e.g. clicked 承認) - never the rule that justified it. Any claim that the agent discovered the real policy would be false.",
+    "why_explicit": "The agent evaluates records against this configured policy rather than inventing business rules. Records the policy does not clearly cover escalate to a human instead of being guessed at.",
+    "evidence_informed_choices": "Where the policy could be shaped by real evidence, it was: request types are auto-approvable only where Dataset B actually showed that type being approved, and rejection is not auto-executable because the 差戻し path was never observed at all.",
+    "documented_in": ["phase2_dataset_b/visual_audit.md", "phase2_dataset_b/step3_prototype_spec.md"]
+  },
+
+  "leave_approval": {
+    "policy_version": "leave-approval-prototype-v1",
+    "description": "Prototype rules for auto-processing pending leave/attendance requests.",
+
+    "actionable_statuses": ["申請中"],
+
+    "allowed_request_types": ["代休申請", "半日有給申請", "フレックス変更申請"],
+    "allowed_request_types_rationale": "Each of these three was directly observed being approved in Dataset B (代休申請 in segment ses_20260701-180923-NEELA9BAF::seg013; 半日有給申請 and フレックス変更申請 in segment ses_20260701-181913-SIDDHIGUPTAB00B::seg002). 年次有給休暇 appeared in a list view but was never observed being approved, so it is deliberately excluded and routes to human review.",
+
+    "required_fields": [
+      "employee_id",
+      "employee_name",
+      "request_type",
+      "request_date",
+      "department"
+    ],
+
+    "allow_auto_approval": true,
+    "allow_auto_rejection": false,
+    "allow_auto_rejection_rationale": "The 差戻し (return/reject) control exists in the UI but was never observed being used in any inspected Dataset B segment. With no evidence of what rejection requires or triggers, the prototype never rejects automatically - such records go to a human.",
+
+    "require_human_review_if_missing_data": true,
+    "require_human_review_if_type_not_allowed": true,
+
+    "prior_approval_rule": {
+      "description": "How to treat the 事前承認要否 flag observed on the detail panel.",
+      "when_not_required": "APPROVE",
+      "when_required_and_obtained": "APPROVE",
+      "when_required_and_not_obtained": "REVIEW",
+      "when_required_and_unknown": "REVIEW",
+      "when_requirement_unknown": "REVIEW",
+      "note": "Dataset B showed whether prior approval was REQUIRED, never whether it was OBTAINED. Records where this cannot be established escalate rather than being assumed either way."
+    },
+
+    "min_confidence_for_auto_execution": 0.8,
+    "min_confidence_rationale": "A decision the agent is not confident in is treated as ambiguous and escalated, even when the rules technically resolve."
+  },
+
+  "payroll_confirmation": {
+    "policy_version": "payroll-confirmation-prototype-v0-draft",
+    "status": "NOT ACTIVE - placeholder for workflow #2. No code reads this section yet.",
+    "description": "Draft shape only, to be defined when Payroll Confirmation is implemented.",
+    "actionable_statuses": ["未処理"],
+    "allow_auto_confirmation": false,
+    "allow_auto_hold": false,
+    "require_human_review_if_missing_data": true,
+    "note": "The payroll detail panel's 参照 note (申請者区分 / 承認権限) implies approval authority varies by requester type, and the real thresholds were never visible in the logs. Those rules must be supplied explicitly before anything here is switched on."
+  }
+}

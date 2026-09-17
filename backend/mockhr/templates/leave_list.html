@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}休暇申請一覧 | 社内人事システム{% endblock %}
+{% block body %}
+<nav class="crumbs">ホーム &rsaquo; 勤怠管理 &rsaquo; <strong>休暇申請一覧</strong></nav>
+<main>
+  <h2>休暇申請一覧</h2>
+
+  {% if flash %}
+  <div class="banner banner-ok" data-testid="list-flash">{{ flash }}</div>
+  {% endif %}
+
+  <div class="panel">
+    <table data-testid="leave-list">
+      <thead>
+        <tr>
+          <th>管理ID</th><th>社員ID</th><th>氏名</th><th>申請種別</th>
+          <th>期間</th><th>所属部署</th><th>ステータス</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr data-testid="leave-row-{{ r.record_id }}">
+          <td data-testid="row-id-{{ r.record_id }}">{{ r.record_id }}</td>
+          <td>{{ r.employee_id or '—' }}</td>
+          <td>{{ r.employee_name or '—' }}</td>
+          <td>{{ r.request_type or '—' }}</td>
+          <td>{{ r.request_date or '—' }}</td>
+          <td>{{ r.department or '—' }}</td>
+          <td data-testid="row-status-{{ r.record_id }}">
+            <span class="status {{ status_class(r.status.value) }}">{{ r.status.value }}</span>
+          </td>
+          <td>
+            <a href="{{ base }}/leave-applications/{{ r.record_id }}"
+               data-testid="open-{{ r.record_id }}">詳細</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="note" data-testid="record-count">{{ records | length }} 件</p>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "purpose": "Minimal placeholder dataset for the SECOND workflow (Payroll Confirmation). Prepared for later integration only.",
+    "status": "NOT IMPLEMENTED. No workflow definition, policy path or endpoint consumes this file yet. It exists so the schema layer and demo data are ready when workflow #2 is built.",
+    "observed_source": {
+      "segment_id": "ses_20260701-190250-NEELA9BAF::seg002",
+      "screenshot": "dataset_b/ses_20260701-190250-NEELA9BAF/chunk_20260701-1900-NEELA9BAF/screenshots/scr_smart_1782932706344_monitor_1_post.jpg",
+      "system": "HR人事給与システム @ 127.0.0.1:5132/#/payroll-items",
+      "documented_in": "phase2_dataset_b/visual_audit.md, phase2_dataset_b/step3_prototype_spec.md"
+    },
+    "identifier_caveat": "The regex-matched case ids attached to that segment (INV-2026-79xx) were dashboard list-view noise, NOT the record actually processed. The real key is 管理ID + 社員ID."
+  },
+  "records": [
+    {
+      "record_id": "P1-07046967-001",
+      "status": "未処理",
+      "employee_id": "E2011",
+      "employee_name": "清水 祥平",
+      "category": "研修費",
+      "amount": "25213",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": null,
+      "provenance": "dataset_b_observed",
+      "evidence_note": "Detail panel fully confirmed by screenshot (管理ID/社員ID/区分/金額/ステータス + 参照 note), and the 登録確定 action on this record was the clean 11.7s execution in segment ses_20260701-190250-NEELA9BAF::seg002."
+    },
+    {
+      "record_id": "P4-07046967-009",
+      "status": "未処理",
+      "employee_id": "E2015",
+      "employee_name": "遠山 健一",
+      "category": "役職手当廃止",
+      "amount": "16424",
+      "policy_reference": null,
+      "comment": null,
+      "provenance": "dataset_b_list_observed",
+      "evidence_note": "Row visible in the same list screenshot; detail panel never opened, so the 参照 policy note is unknown."
+    },
+    {
+      "record_id": "P4-07046967-012",
+      "status": "未処理",
+      "employee_id": "E2012",
+      "employee_name": "竹内 彩子",
+      "category": "役職手当新設",
+      "amount": "25158",
+      "policy_reference": null,
+      "comment": null,
+      "provenance": "dataset_b_list_observed",
+      "evidence_note": "Row visible in the same list screenshot; detail panel never opened, so the 参照 policy note is unknown."
+    },
+    {
+      "record_id": "DEMO-PR-001",
+      "status": "未処理",
+      "employee_id": "E2201",
+      "employee_name": "大野 真一",
+      "category": "研修費",
+      "amount": "9800",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    }
+  ]
+}
