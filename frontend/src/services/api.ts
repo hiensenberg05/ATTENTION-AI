@@ -7,10 +7,12 @@
  *
  * Endpoints consumed:
  *   GET  /api/workflows                            workflow definitions + Phase 2 evidence
- *   GET  /api/leave-requests                       the HR queue, live (status changes as runs land)
+ *   GET  /api/leave-requests                       the leave queue, live
  *   GET  /api/leave-requests/{record_id}
- *   GET  /api/policy/leave                         the explicit prototype policy
- *   POST /api/automation/leave/{record_id}/start   run one record through the pipeline
+ *   GET  /api/payroll-items                        the payroll queue, live
+ *   GET  /api/payroll-items/{record_id}
+ *   GET  /api/policy/leave  |  /api/policy/payroll the explicit prototype policies
+ *   POST /api/automation/{workflow}/{record_id}/start   run one record, either workflow
  *   GET  /api/automation/history                   every job this backend has run
  *   GET  /api/automation/{job_id}
  *   POST /api/automation/{job_id}/human-decision   resolve an escalated job
@@ -25,16 +27,19 @@
 
 import type {
   AutomationJob,
+  BusinessRecord,
   DecisionType,
   ExecutionResult,
   JobState,
   LeaveRequest,
+  PayrollItem,
   QueueStage,
   QueueTask,
   RunHistoryEntry,
   WorkflowDefinition,
   WorkflowType,
 } from '@/types'
+import { isLeaveRequest } from '@/types'
 
 const API_BASE = '/api'
 
@@ -82,6 +87,15 @@ export async function fetchLeaveRequest(recordId: string): Promise<LeaveRequest>
   return get<LeaveRequest>(`/leave-requests/${encodeURIComponent(recordId)}`)
 }
 
+export async function fetchPayrollItems(status?: string): Promise<PayrollItem[]> {
+  const qs = status ? `?status=${encodeURIComponent(status)}` : ''
+  return get<PayrollItem[]>(`/payroll-items${qs}`)
+}
+
+export async function fetchPayrollItem(recordId: string): Promise<PayrollItem> {
+  return get<PayrollItem>(`/payroll-items/${encodeURIComponent(recordId)}`)
+}
+
 export async function fetchAgentHealth(): Promise<{
   llm_configured: boolean
   model: string
@@ -108,9 +122,20 @@ export async function fetchJob(jobId: string): Promise<AutomationJob> {
  * guards, and — unless the job escalates — Playwright execution and verification.
  * Resolves when the run is finished, so callers get a real outcome rather than a
  * job id to poll.
+ *
+ * One endpoint serves every workflow, because it is the same pipeline.
  */
+export async function startAutomation(
+  workflow: WorkflowType,
+  recordId: string,
+): Promise<AutomationJob> {
+  return post<AutomationJob>(
+    `/automation/${workflow}/${encodeURIComponent(recordId)}/start`,
+  )
+}
+
 export async function startLeaveAutomation(recordId: string): Promise<AutomationJob> {
-  return post<AutomationJob>(`/automation/leave/${encodeURIComponent(recordId)}/start`)
+  return startAutomation('LEAVE_APPROVAL', recordId)
 }
 
 export async function submitHumanDecision(
@@ -145,17 +170,38 @@ const STAGE_BY_STATE: Record<JobState, QueueStage> = {
   FAILED: 'Failed',
 }
 
-function recordOf(job: AutomationJob): LeaveRequest {
-  return job.record as LeaveRequest
+function recordOf(job: AutomationJob): BusinessRecord {
+  return job.record
 }
 
-function detailLine(rec: LeaveRequest): string {
+/** Money as the HR screen prints it: grouped, with the unit. */
+function yen(amount: string | null): string {
+  if (!amount) return ''
+  const n = Number(amount)
+  return Number.isFinite(n) ? `¥${n.toLocaleString('ja-JP')}` : amount
+}
+
+/**
+ * The one-line summary under a queue row. Missing fields are named rather than
+ * rendered blank, because a gap in the record is the thing most likely to send
+ * it to a human.
+ */
+function detailLine(rec: BusinessRecord): string {
   const gaps: string[] = []
   if (!rec.employee_id) gaps.push('employee_id missing')
-  if (!rec.request_date) gaps.push('date missing')
-  if (!rec.department) gaps.push('department missing')
+
+  if (isLeaveRequest(rec)) {
+    if (!rec.request_date) gaps.push('date missing')
+    if (!rec.department) gaps.push('department missing')
+    if (gaps.length) return gaps.join(' · ')
+    return [rec.request_type, rec.request_date, rec.department].filter(Boolean).join(' · ')
+  }
+
+  if (!rec.category) gaps.push('category missing')
+  if (!rec.amount) gaps.push('amount missing')
+  if (!rec.policy_reference) gaps.push('参照 note missing')
   if (gaps.length) return gaps.join(' · ')
-  return [rec.request_type, rec.request_date, rec.department].filter(Boolean).join(' · ')
+  return [rec.category, yen(rec.amount)].filter(Boolean).join(' · ')
 }
 
 function durationLabel(job: AutomationJob | null): string {
@@ -169,28 +215,39 @@ function durationLabel(job: AutomationJob | null): string {
  * the honest state, not an omission.
  */
 export async function fetchQueue(): Promise<QueueTask[]> {
-  const [records, jobs] = await Promise.all([fetchLeaveRequests(), fetchJobs()])
+  const [leave, payroll, jobs] = await Promise.all([
+    fetchLeaveRequests(),
+    fetchPayrollItems(),
+    fetchJobs(),
+  ])
 
   // Jobs arrive newest-first, so the first match per record is the latest run.
+  // Keyed by workflow AND id, because the two queues use different id schemes and
+  // a future collision must not make one workflow's job annotate the other's row.
   const latest = new Map<string, AutomationJob>()
   for (const job of jobs) {
-    const id = recordOf(job).record_id
-    if (!latest.has(id)) latest.set(id, job)
+    const key = `${job.workflow}:${recordOf(job).record_id}`
+    if (!latest.has(key)) latest.set(key, job)
   }
 
-  return records.map((rec, i) => {
-    const job = latest.get(rec.record_id) ?? null
+  const rows: Array<{ workflow: WorkflowType; record: BusinessRecord }> = [
+    ...leave.map((record) => ({ workflow: 'LEAVE_APPROVAL' as const, record })),
+    ...payroll.map((record) => ({ workflow: 'PAYROLL_CONFIRMATION' as const, record })),
+  ]
+
+  return rows.map(({ workflow, record }, i) => {
+    const job = latest.get(`${workflow}:${record.record_id}`) ?? null
     return {
       task_id: `TASK-${String(i + 1).padStart(3, '0')}`,
       job_id: job?.job_id ?? '',
-      workflow: 'LEAVE_APPROVAL',
-      record: rec,
+      workflow,
+      record,
       state: job?.state ?? 'START',
       stage: job ? STAGE_BY_STATE[job.state] : 'Queued',
       decision: job?.decision?.decision ?? null,
       confidence: job?.decision?.confidence ?? null,
       submitted_at: job?.created_at ?? new Date().toISOString(),
-      detail_line: detailLine(rec),
+      detail_line: detailLine(record),
       duration_label: durationLabel(job),
       duration_seconds: job?.execution?.duration_seconds ?? null,
     }
@@ -206,18 +263,23 @@ export async function fetchRunHistory(): Promise<RunHistoryEntry[]> {
       const rec = recordOf(job)
       const effective: DecisionType =
         job.human_decision?.decision ?? job.decision?.decision ?? 'REVIEW'
+      const leave = isLeaveRequest(rec)
       return {
         run_id: job.job_id.replace('JOB-', 'RUN-'),
         job_id: job.job_id,
         timestamp: job.execution.finished_at ?? job.updated_at,
         workflow: job.workflow,
         subject: rec.employee_name ?? rec.record_id,
-        subject_detail: [rec.request_type, rec.request_date].filter(Boolean).join(' · '),
+        subject_detail: leave
+          ? [rec.request_type, rec.request_date].filter(Boolean).join(' · ')
+          : [rec.category, yen(rec.amount)].filter(Boolean).join(' · '),
         decision: effective,
         human_overridden: job.human_decision !== null,
         verification_status: job.execution.verification_status,
         duration_ms: Math.round((job.execution.duration_seconds ?? 0) * 1000),
-        systems_touched: ['Mock HR (leave-applications)'],
+        systems_touched: [
+          leave ? 'Mock HR (leave-applications)' : 'Mock HR (payroll-items)',
+        ],
       }
     })
 }
@@ -235,7 +297,12 @@ export async function fetchRunHistory(): Promise<RunHistoryEntry[]> {
  * A job a person had to resolve is not automation, even when it then succeeded.
  */
 export async function fetchDashboard() {
-  const [jobs, records] = await Promise.all([fetchJobs(), fetchLeaveRequests()])
+  const [jobs, leave, payroll] = await Promise.all([
+    fetchJobs(),
+    fetchLeaveRequests(),
+    fetchPayrollItems(),
+  ])
+  const records: BusinessRecord[] = [...leave, ...payroll]
 
   const completed = jobs.filter((j) => j.state === 'COMPLETED')
   const failed = jobs.filter((j) => j.state === 'FAILED')
@@ -255,7 +322,9 @@ export async function fetchDashboard() {
     .map((j) => j.execution?.duration_seconds)
     .filter((d): d is number => typeof d === 'number' && d > 0)
 
-  const ranRecordIds = new Set(jobs.map((j) => recordOf(j).record_id))
+  const ranRecordIds = new Set(jobs.map((j) => `${j.workflow}:${recordOf(j).record_id}`))
+  const keyOf = (r: BusinessRecord) =>
+    `${isLeaveRequest(r) ? 'LEAVE_APPROVAL' : 'PAYROLL_CONFIRMATION'}:${r.record_id}`
 
   const decided = jobs.filter((j) => j.decision)
   const decisions = {
@@ -287,20 +356,28 @@ export async function fetchDashboard() {
       humanReview: humanReview.length,
       inFlight: inFlight.length,
       // Records nobody has run yet.
-      queued: records.filter((r) => !ranRecordIds.has(r.record_id)).length,
+      queued: records.filter((r) => !ranRecordIds.has(keyOf(r))).length,
       autonomousRate: finished.length ? autonomous.length / finished.length : 0,
       verificationRate: attempted.length ? verified.length / attempted.length : 0,
       avgExecutionSeconds: durations.length
         ? durations.reduce((a, b) => a + b, 0) / durations.length
         : 0,
-      pendingRecords: records.filter((r) => r.status === '申請中').length,
+      // "Pending" means actionable in whichever queue the record belongs to.
+      pendingRecords: records.filter(
+        (r) => r.status === '申請中' || r.status === '未処理',
+      ).length,
       llmDecisions: jobs.filter((j) => j.decision?.decided_by === 'llm+policy_guard').length,
     },
     decisions,
     connectors: [
       {
-        name: 'Mock HR 人事システム',
+        name: 'Mock HR · 休暇申請',
         detail: 'Target UI · /mock-hr/leave-applications',
+        status: 'connected' as const,
+      },
+      {
+        name: 'Mock HR · 経費精算',
+        detail: 'Target UI · /mock-hr/payroll-items',
         status: 'connected' as const,
       },
       {

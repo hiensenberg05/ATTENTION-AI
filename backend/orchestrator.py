@@ -15,6 +15,12 @@ The agent never chooses to execute. The routing table does.
 STATE IS NOT DECISION. `job.state` says where the job is; `job.decision` says what
 was concluded. A job in EXECUTING carrying APPROVE and a job in EXECUTING carrying
 REJECT are in the same state with different decisions, and that is the point.
+
+WORKFLOW-NEUTRAL BY CONSTRUCTION. Nothing below mentions leave or payroll. The
+five things that differ per workflow - definition, record type, policy key, policy
+gates and record loader - come from `workflows.registry`, so adding a third
+workflow does not touch this file. That is the test of whether this is a platform
+or a demo with two hardcoded branches.
 """
 
 from __future__ import annotations
@@ -26,15 +32,15 @@ from itertools import count
 from typing import Optional
 
 import repository
-from agent import decide_leave_request
-from execution import ActionNotAutoExecutable, action_spec_for, execute_leave_decision
+from agent import decide_record
+from execution import ActionNotAutoExecutable, action_spec_for, execute_decision
 from models.agent import AgentDecision
 from models.common import AmbiguityType, DecisionType, WorkflowType
 from models.execution import VerificationStatus
 from models.job import AutomationJob, HumanDecision, StateTransition
-from models.leave import LeaveRequest
-from mockhr import store as hr_store
+from mockhr import reset_all as reset_hr_system
 from state.machine import JobState, assert_transition, next_state_for_decision
+from workflows.registry import BusinessRecord, WorkflowBinding, binding_for
 
 logger = logging.getLogger(__name__)
 
@@ -110,13 +116,13 @@ def _fail(job: AutomationJob, message: str) -> AutomationJob:
     return jobs.put(job)
 
 
-def _load_record(record_id: str) -> LeaveRequest:
+def _load_record(binding: WorkflowBinding, record_id: str) -> BusinessRecord:
     """Read the record from the mock HR system - its live state, not the seed file.
 
-    This matters: a record approved earlier in the demo must present as approved
+    This matters: a record confirmed earlier in the demo must present as confirmed
     here, so a second run on it is correctly refused rather than silently redone.
     """
-    return hr_store.get(record_id)
+    return binding.load_record(record_id)
 
 
 def _execute_and_verify(
@@ -127,18 +133,17 @@ def _execute_and_verify(
     human_authorised: bool,
 ) -> AutomationJob:
     """Run EXECUTING -> VERIFYING -> COMPLETED/FAILED for an already-decided job."""
-    workflow = repository.get_workflow(WorkflowType.LEAVE_APPROVAL)
-    assert workflow is not None  # the definition is static and always present
+    binding = binding_for(job.workflow)
 
     _move(job, JobState.EXECUTING, f"Executing {decision.value}")
     jobs.put(job)
 
     try:
         with _EXECUTION_LOCK:
-            result = execute_leave_decision(
-                record=job.record,  # type: ignore[arg-type]
+            result = execute_decision(
+                record=job.record,
                 decision=decision,
-                workflow=workflow,
+                workflow=binding.definition,
                 comment=comment,
                 executed_by=executed_by,
                 human_authorised=human_authorised,
@@ -163,7 +168,7 @@ def _execute_and_verify(
             f"Verified: {result.status_before} -> {result.status_after}",
         )
         # Reflect the real post-action record back onto the job.
-        job.record = _load_record(job.record.record_id)
+        job.record = _load_record(binding, job.record.record_id)
         return jobs.put(job)
 
     # Every step ran, but the record did not end up where it should have. This is
@@ -178,22 +183,26 @@ def _execute_and_verify(
     )
 
 
-def start_leave_job(record_id: str, run_execution: bool = True) -> AutomationJob:
-    """Take one leave request from START to a terminal or awaiting-human state.
+def start_job(
+    workflow: WorkflowType, record_id: str, run_execution: bool = True
+) -> AutomationJob:
+    """Take one record from START to a terminal or awaiting-human state.
 
     `run_execution=False` stops after POLICY_CHECK. Useful for showing the decision
     in the UI without touching the HR system - and for tests that must not launch
     a browser.
     """
+    binding = binding_for(workflow)
+
     try:
-        record = _load_record(record_id)
+        record = _load_record(binding, record_id)
     except KeyError as exc:
         raise RecordNotFound(record_id) from exc
 
     now = datetime.now(timezone.utc)
     job = AutomationJob(
         job_id=jobs.new_job_id(),
-        workflow=WorkflowType.LEAVE_APPROVAL,
+        workflow=workflow,
         state=JobState.START,
         record=record,
         created_at=now,
@@ -220,8 +229,8 @@ def start_leave_job(record_id: str, run_execution: bool = True) -> AutomationJob
     _move(job, JobState.POLICY_CHECK, "Evaluating the configured policy")
     jobs.put(job)
 
-    policy = repository.get_policy("leave_approval")
-    decision: AgentDecision = decide_leave_request(job.record, policy)  # type: ignore[arg-type]
+    policy = repository.get_policy(binding.policy_key)
+    decision: AgentDecision = decide_record(job.record, policy, binding)
     job.decision = decision
     job.updated_at = datetime.now(timezone.utc)
     jobs.put(job)
@@ -234,11 +243,9 @@ def start_leave_job(record_id: str, run_execution: bool = True) -> AutomationJob
         return jobs.put(job)
 
     # The workflow may still forbid unattended execution of this action even when
-    # the decision itself is APPROVE/REJECT - e.g. rejection, which was never
-    # observed being performed in Dataset B.
-    workflow = repository.get_workflow(WorkflowType.LEAVE_APPROVAL)
-    assert workflow is not None
-    spec = action_spec_for(workflow, decision.decision)
+    # the decision itself is APPROVE/REJECT - e.g. leave rejection or payroll hold,
+    # neither of which was ever observed being performed in Dataset B.
+    spec = action_spec_for(binding.definition, decision.decision)
     if spec is None or not spec.auto_executable:
         rationale = spec.rationale if spec else "No execution action is defined."
         job.decision = decision.model_copy(
@@ -262,6 +269,16 @@ def start_leave_job(record_id: str, run_execution: bool = True) -> AutomationJob
         executed_by="agent",
         human_authorised=False,
     )
+
+
+def start_leave_job(record_id: str, run_execution: bool = True) -> AutomationJob:
+    """Workflow-specific alias for `start_job`, kept for readability."""
+    return start_job(WorkflowType.LEAVE_APPROVAL, record_id, run_execution)
+
+
+def start_payroll_job(record_id: str, run_execution: bool = True) -> AutomationJob:
+    """Workflow-specific alias for `start_job`, kept for readability."""
+    return start_job(WorkflowType.PAYROLL_CONFIRMATION, record_id, run_execution)
 
 
 def submit_human_decision(
@@ -307,7 +324,13 @@ def submit_human_decision(
 
 
 def reset_demo() -> dict[str, int]:
-    """Restore the mock HR system and clear all jobs, so the demo can be re-run."""
-    hr_store.reset()
+    """Restore every mock HR queue and clear all jobs, so the demo can be re-run."""
+    reset_hr_system()
     jobs.reset()
-    return {"records_restored": len(hr_store.all()), "jobs_cleared": 0}
+    from mockhr import leave_store, payroll_store
+
+    return {
+        "leave_records_restored": len(leave_store.all()),
+        "payroll_records_restored": len(payroll_store.all()),
+        "jobs_cleared": 0,
+    }

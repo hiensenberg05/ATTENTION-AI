@@ -21,11 +21,13 @@ import Execution from '@/pages/Execution'
 import HumanReview from '@/pages/HumanReview'
 import AuditHistory from '@/pages/AuditHistory'
 import {
+  allJobs,
+  allQueueTasks,
   computeMetrics,
   decisionDistribution,
-  jobs,
   leaveRequests,
-  queueTasks,
+  payrollItems,
+  payrollJobs,
   runHistory,
   systemConnectors,
   throughputSeries,
@@ -49,10 +51,17 @@ vi.mock('@/services/api', () => ({
     if (!found) throw new Error(`No leave request ${id}`)
     return found
   },
-  fetchQueue: async () => queueTasks,
-  fetchJobs: async () => jobs,
+  fetchPayrollItems: async (status?: string) =>
+    status ? payrollItems.filter((r) => r.status === status) : payrollItems,
+  fetchPayrollItem: async (id: string) => {
+    const found = payrollItems.find((r) => r.record_id === id)
+    if (!found) throw new Error(`No payroll item ${id}`)
+    return found
+  },
+  fetchQueue: async () => allQueueTasks,
+  fetchJobs: async () => allJobs,
   fetchJob: async (id: string) => {
-    const found = jobs.find((j) => j.job_id === id)
+    const found = allJobs.find((j) => j.job_id === id)
     if (!found) throw new Error(`No job ${id}`)
     return found
   },
@@ -71,10 +80,12 @@ vi.mock('@/services/api', () => ({
     pydantic_ai_version: '2.44.0',
     fallback: 'deterministic policy engine',
   }),
+  startAutomation: async (_workflow: string, recordId: string) =>
+    allJobs.find((j) => (j.record as { record_id: string }).record_id === recordId) ?? allJobs[0],
   startLeaveAutomation: async (recordId: string) =>
-    jobs.find((j) => (j.record as { record_id: string }).record_id === recordId) ?? jobs[0],
+    allJobs.find((j) => (j.record as { record_id: string }).record_id === recordId) ?? allJobs[0],
   submitHumanDecision: async (jobId: string) =>
-    jobs.find((j) => j.job_id === jobId) ?? jobs[0],
+    allJobs.find((j) => j.job_id === jobId) ?? allJobs[0],
   resetDemo: async () => ({ status: 'reset', records_restored: leaveRequests.length }),
 }))
 
@@ -160,7 +171,7 @@ describe('task queue', () => {
     renderAt('/queue')
     await waitFor(() => expect(page().getByText(/Showing/)).toBeTruthy(), settle)
     // header row + one row per task
-    expect(page().getAllByRole('row').length).toBe(queueTasks.length + 1)
+    expect(page().getAllByRole('row').length).toBe(allQueueTasks.length + 1)
   })
 })
 
@@ -217,7 +228,8 @@ describe('human review', () => {
   it('renders the escalation queue', async () => {
     renderAt('/review')
     await waitFor(() => expect(page().getByText('Human Review Queue')).toBeTruthy(), settle)
-    const reviewCount = jobs.filter((j) => j.state === 'HUMAN_REVIEW').length
+    // Both workflows escalate into the same queue, so the count spans both.
+    const reviewCount = allJobs.filter((j) => j.state === 'HUMAN_REVIEW').length
     await waitFor(
       () => expect(page().getByText(`${reviewCount} awaiting`)).toBeTruthy(),
       settle,
@@ -245,7 +257,7 @@ describe('human review', () => {
     renderAt('/review/JOB-2041')
     await waitFor(() => expect(page().getByText(/^Review:/)).toBeTruthy(), settle)
     expect(page().getAllByText(/never whether it was/).length).toBeGreaterThan(0)
-    expect(page().getAllByText('Unknown').length).toBeGreaterThan(0)
+    expect(page().getAllByText(/obtained: Unknown/).length).toBeGreaterThan(0)
   })
 })
 
@@ -257,6 +269,65 @@ describe('audit history', () => {
     expect(page().getByText('Breakdown by workflow')).toBeTruthy()
     expect(page().getAllByText(/RUN-/).length).toBeGreaterThan(0)
     expect(page().getByText(/What this audit trail is, and is not/)).toBeTruthy()
+  })
+})
+
+describe('payroll confirmation', () => {
+  it('shows payroll records alongside leave in one queue', async () => {
+    renderAt('/queue')
+    await waitFor(() => expect(page().getByText(/Showing/)).toBeTruthy(), settle)
+
+    // Both workflows are present and labelled, so two queues in one table are
+    // never ambiguous.
+    expect(page().getAllByText('Payroll Confirmation').length).toBeGreaterThan(0)
+    expect(page().getAllByText('Leave Approval').length).toBeGreaterThan(0)
+
+    // The screenshot-confirmed payroll record, with its real amount.
+    expect(page().getAllByText('P1-07046967-001').length).toBeGreaterThan(0)
+    expect(page().getAllByText(/¥25,213/).length).toBeGreaterThan(0)
+  })
+
+  it('renders the payroll policy gates and a confirmed execution', async () => {
+    renderAt('/agent/JOB-3001')
+    await waitFor(() => expect(page().getByText(/Policy evaluation:/)).toBeTruthy(), settle)
+    expect(page().getAllByText('PASS').length).toBe(5)
+    expect(page().getAllByText(/金額/).length).toBeGreaterThan(0)
+  })
+
+  it('escalates an amount above the configured prototype limit', async () => {
+    renderAt('/agent/JOB-3002')
+    await waitFor(() => expect(page().getByText(/Policy evaluation:/)).toBeTruthy(), settle)
+    expect(page().getByText('FAIL')).toBeTruthy()
+    expect(page().getByText(/Escalated to human review/)).toBeTruthy()
+    // The threshold must never be presented as a company rule.
+    expect(page().getAllByText(/prototype limit/).length).toBeGreaterThan(0)
+  })
+
+  it('shows the payroll execution with its verified status change', async () => {
+    renderAt('/execution/JOB-3001')
+    await waitFor(() => expect(page().getByText(/Execution:/)).toBeTruthy(), settle)
+    expect(page().getAllByText(/Click 登録確定/).length).toBeGreaterThan(0)
+    expect(page().getAllByText('未処理').length).toBeGreaterThan(0)
+    expect(page().getAllByText('登録確定済み').length).toBeGreaterThan(0)
+  })
+
+  it('mirrors the backend payroll dataset, provenance intact', () => {
+    const observed = payrollItems.find((r) => r.record_id === 'P1-07046967-001')!
+    expect(observed.provenance).toBe('dataset_b_observed')
+    expect(observed.amount).toBe('25213')
+    expect(observed.category).toBe('研修費')
+    // Synthetic payroll records must wear an unmistakable prefix.
+    for (const rec of payrollItems) {
+      if (rec.provenance === 'synthetic_demo') {
+        expect(rec.record_id.startsWith('DEMO-')).toBe(true)
+      }
+    }
+  })
+
+  it('never auto-executes a hold', () => {
+    for (const job of payrollJobs) {
+      if (job.decision?.decision === 'REVIEW') expect(job.execution).toBeNull()
+    }
   })
 })
 
@@ -288,7 +359,7 @@ describe('mock data integrity', () => {
   })
 
   it('never routes a REVIEW decision without flagging human review', () => {
-    for (const job of jobs) {
+    for (const job of allJobs) {
       if (job.decision?.decision === 'REVIEW') {
         expect(job.decision.human_review_required).toBe(true)
       }

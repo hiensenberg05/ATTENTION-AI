@@ -1,14 +1,14 @@
 {
   "_meta": {
-    "purpose": "Minimal placeholder dataset for the SECOND workflow (Payroll Confirmation). Prepared for later integration only.",
-    "status": "NOT IMPLEMENTED. No workflow definition, policy path or endpoint consumes this file yet. It exists so the schema layer and demo data are ready when workflow #2 is built.",
+    "purpose": "Demo dataset for the Payroll Confirmation workflow (workflow #2). Three kinds of truth are kept strictly separate - see `provenance` on every record.",
     "observed_source": {
       "segment_id": "ses_20260701-190250-NEELA9BAF::seg002",
       "screenshot": "dataset_b/ses_20260701-190250-NEELA9BAF/chunk_20260701-1900-NEELA9BAF/screenshots/scr_smart_1782932706344_monitor_1_post.jpg",
       "system": "HR人事給与システム @ 127.0.0.1:5132/#/payroll-items",
       "documented_in": "phase2_dataset_b/visual_audit.md, phase2_dataset_b/step3_prototype_spec.md"
     },
-    "identifier_caveat": "The regex-matched case ids attached to that segment (INV-2026-79xx) were dashboard list-view noise, NOT the record actually processed. The real key is 管理ID + 社員ID."
+    "identifier_caveat": "The regex-matched case ids attached to that segment (INV-2026-79xx) were dashboard list-view noise, NOT the record actually processed. The real key is 管理ID + 社員ID.",
+    "demo_record_caveat": "Every DEMO-PAY-* record is fabricated to exercise a code path and is NEVER to be presented as observed behaviour. The DEMO- prefix makes that unmistakable at a glance in the UI, the API and the audit trail."
   },
   "records": [
     {
@@ -21,7 +21,7 @@
       "policy_reference": "申請者区分：regular　承認権限：部門長",
       "comment": null,
       "provenance": "dataset_b_observed",
-      "evidence_note": "Detail panel fully confirmed by screenshot (管理ID/社員ID/区分/金額/ステータス + 参照 note), and the 登録確定 action on this record was the clean 11.7s execution in segment ses_20260701-190250-NEELA9BAF::seg002."
+      "evidence_note": "Detail panel fully confirmed by screenshot (管理ID/社員ID/区分/金額/ステータス + 参照 note), and the 登録確定 action on this record was the clean 11.7s execution in segment ses_20260701-190250-NEELA9BAF::seg002. This is the only record in the whole prototype whose auto-confirmation reproduces an action a human was actually observed taking."
     },
     {
       "record_id": "P4-07046967-009",
@@ -48,7 +48,7 @@
       "evidence_note": "Row visible in the same list screenshot; detail panel never opened, so the 参照 policy note is unknown."
     },
     {
-      "record_id": "DEMO-PR-001",
+      "record_id": "DEMO-PAY-001",
       "status": "未処理",
       "employee_id": "E2201",
       "employee_name": "大野 真一",
@@ -56,6 +56,90 @@
       "amount": "9800",
       "policy_reference": "申請者区分：regular　承認権限：部門長",
       "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-002",
+      "status": "未処理",
+      "employee_id": "E2202",
+      "employee_name": "石川 麻衣",
+      "category": "交通費",
+      "amount": "3420",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-003",
+      "status": "未処理",
+      "employee_id": "E2203",
+      "employee_name": "有馬 健太",
+      "category": "消耗品費",
+      "amount": "12750",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-REVIEW",
+      "status": "未処理",
+      "employee_id": "E2204",
+      "employee_name": "黒田 直樹",
+      "category": "研修費",
+      "amount": "148500",
+      "policy_reference": "申請者区分：manager　承認権限：本部長",
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-NOREF",
+      "status": "未処理",
+      "employee_id": "E2205",
+      "employee_name": "平山 綾",
+      "category": "交通費",
+      "amount": "5600",
+      "policy_reference": null,
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-CATEGORY",
+      "status": "未処理",
+      "employee_id": "E2206",
+      "employee_name": "戸田 悠介",
+      "category": "接待交際費",
+      "amount": "8200",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-INCOMPLETE",
+      "status": "未処理",
+      "employee_id": null,
+      "employee_name": "山崎 美和",
+      "category": "研修費",
+      "amount": "7300",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": null,
+      "provenance": "synthetic_demo",
+      "evidence_note": null
+    },
+    {
+      "record_id": "DEMO-PAY-DONE",
+      "status": "登録確定済み",
+      "employee_id": "E2207",
+      "employee_name": "富永 翔一",
+      "category": "研修費",
+      "amount": "4100",
+      "policy_reference": "申請者区分：regular　承認権限：部門長",
+      "comment": "確定済み",
       "provenance": "synthetic_demo",
       "evidence_note": null
     }

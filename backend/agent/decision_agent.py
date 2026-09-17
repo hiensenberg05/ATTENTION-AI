@@ -27,18 +27,23 @@ from __future__ import annotations
 import json
 import logging
 import os
+from decimal import Decimal
+from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from dotenv import load_dotenv
 
 from models.agent import AgentDecision
 from models.common import DecisionType
 from models.leave import LeaveRequest
+from models.payroll import PayrollItem
 
 from .guards import enforce
-from .policy_engine import PolicyEvaluation, evaluate_leave_request
+from .policy_engine import PolicyEvaluation
 from .schemas import LlmDecisionDraft
+
+BusinessRecord = Union[LeaveRequest, PayrollItem]
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +63,7 @@ DECIDED_BY_FALLBACK = "policy_engine_fallback"
 
 SYSTEM_PROMPT = """\
 You are the decision layer of a back-office automation system for a Japanese HR \
-application. You evaluate one leave/attendance request at a time.
+and payroll application. You evaluate one business record at a time.
 
 YOUR ROLE
 You are given (a) a business record that has already been read and structured for \
@@ -93,7 +98,21 @@ Two or three sentences of plain English for an operations reviewer. Name the \
 specific gates and record fields that drove the outcome. Do not restate the whole \
 policy, do not invent business rules that are not in the policy given to you, and \
 do not claim the policy came from observing real operators - it is an explicit \
-prototype policy written by hand."""
+prototype policy written by hand.
+
+The record type you are given varies by workflow. A leave/attendance request turns \
+on whether prior approval was required and obtained. A payroll or expense line item \
+turns on its category, its amount against an explicitly configured prototype limit, \
+and the reference note describing the applicable approval authority. In both cases \
+the gates have already been evaluated for you - read them, do not re-derive them."""
+
+
+#: What each workflow's record is called in the prompt, so the model is not told
+#: to reason about "a record" in the abstract.
+WORKFLOW_SUBJECT: dict[str, str] = {
+    "LEAVE_APPROVAL": "leave/attendance request",
+    "PAYROLL_CONFIRMATION": "payroll/expense line item",
+}
 
 
 def _load_api_key() -> Optional[str]:
@@ -142,36 +161,40 @@ def _get_agent() -> Optional[Any]:
     return agent
 
 
-def _record_payload(record: LeaveRequest) -> dict[str, Any]:
+def _record_payload(record: BusinessRecord) -> dict[str, Any]:
     """The record as the model sees it: values plus an explicit unknown marker.
 
     Serialising `None` as the string "UNKNOWN (not recorded)" matters. A bare null
     in JSON reads to a model like an empty optional; spelling it out keeps the
     three-valued logic visible in the prompt.
+
+    Built by dumping the Pydantic model rather than by listing fields, so a schema
+    change cannot silently stop reaching the model.
     """
 
     def show(value: Any) -> Any:
         if value is None:
             return "UNKNOWN (not recorded)"
+        if isinstance(value, Enum):
+            return value.value
+        if isinstance(value, Decimal):
+            return str(value)
         return value.isoformat() if hasattr(value, "isoformat") else value
 
-    return {
-        "record_id": record.record_id,
-        "status": record.status.value,
-        "employee_id": show(record.employee_id),
-        "employee_name": show(record.employee_name),
-        "request_type": show(record.request_type),
-        "request_date": show(record.request_date),
-        "department": show(record.department),
-        "prior_approval_required": show(record.prior_approval_required),
-        "prior_approval_obtained": show(record.prior_approval_obtained),
-        "comment": show(record.comment),
-        "data_provenance": record.provenance.value,
+    payload = {
+        name: show(getattr(record, name, None))
+        for name in type(record).model_fields
+        if name != "evidence_note"
     }
+    payload["data_provenance"] = record.provenance.value
+    return payload
 
 
 def _build_prompt(
-    record: LeaveRequest, policy: dict[str, Any], evaluation: PolicyEvaluation
+    record: BusinessRecord,
+    policy: dict[str, Any],
+    evaluation: PolicyEvaluation,
+    workflow_name: str,
 ) -> str:
     """Assemble the user message: record, policy, and the pre-evaluated gates."""
     gates = [
@@ -190,19 +213,19 @@ def _build_prompt(
         for c in evaluation.checks
     ]
 
+    # Everything except the `*_rationale` prose, which is written for humans
+    # reading the repository and would only dilute the prompt.
     policy_for_model = {
-        "policy_version": evaluation.policy_version,
-        "actionable_statuses": policy.get("actionable_statuses"),
-        "allowed_request_types": policy.get("allowed_request_types"),
-        "required_fields": policy.get("required_fields"),
-        "allow_auto_approval": evaluation.allow_auto_approval,
-        "allow_auto_rejection": evaluation.allow_auto_rejection,
-        "prior_approval_rule": policy.get("prior_approval_rule"),
-        "min_confidence_for_auto_execution": evaluation.min_confidence,
+        key: value
+        for key, value in policy.items()
+        if not key.endswith(("_rationale", "_caveat")) and not key.startswith("_")
     }
+    policy_for_model["allow_auto_approval"] = evaluation.allow_auto_approval
+    policy_for_model["allow_auto_rejection"] = evaluation.allow_auto_rejection
 
+    subject = WORKFLOW_SUBJECT.get(workflow_name, "business record").upper()
     return (
-        "LEAVE REQUEST RECORD\n"
+        f"{subject} RECORD\n"
         f"{json.dumps(_record_payload(record), ensure_ascii=False, indent=2)}\n\n"
         "POLICY IN FORCE\n"
         f"{json.dumps(policy_for_model, ensure_ascii=False, indent=2)}\n\n"
@@ -232,28 +255,41 @@ def _fallback_draft(evaluation: PolicyEvaluation) -> LlmDecisionDraft:
     )
 
 
-def decide_leave_request(
-    record: LeaveRequest, policy: dict[str, Any]
+def decide_record(
+    record: BusinessRecord,
+    policy: dict[str, Any],
+    binding: Any = None,
 ) -> AgentDecision:
-    """Evaluate one leave request and return the final, guarded decision.
+    """Evaluate one record and return the final, guarded decision.
 
     Order of operations, which is the whole design in four lines:
-        1. Python evaluates the policy gates deterministically.
+        1. Python evaluates the workflow's policy gates deterministically.
         2. The model drafts a decision from the record + gates.
         3. Python's guards merge the two, taking the more conservative outcome.
         4. The deterministic gate results become the decision's audit trail.
 
     A model failure is never fatal: it degrades to step 1's answer and records
     `decided_by='policy_engine_fallback'` so the UI can say so.
+
+    `binding` is a `workflows.registry.WorkflowBinding`, typed loosely to keep
+    this module free of a workflow-layer import. Omitted, it defaults to Leave
+    Approval so existing call sites keep working.
     """
-    evaluation = evaluate_leave_request(record, policy)
+    if binding is None:
+        from workflows.registry import binding_for
+        from models.common import WorkflowType
+
+        binding = binding_for(WorkflowType.LEAVE_APPROVAL)
+
+    evaluation: PolicyEvaluation = binding.evaluate(record, policy)
+    workflow_name = binding.workflow.value
 
     agent = _get_agent()
     if agent is None:
         return enforce(_fallback_draft(evaluation), evaluation, DECIDED_BY_FALLBACK)
 
     try:
-        result = agent.run_sync(_build_prompt(record, policy, evaluation))
+        result = agent.run_sync(_build_prompt(record, policy, evaluation, workflow_name))
         draft = result.output
         decided_by = DECIDED_BY_LLM
     except Exception as exc:  # noqa: BLE001 - any model failure degrades the same way
@@ -268,6 +304,22 @@ def decide_leave_request(
         decided_by = DECIDED_BY_FALLBACK
 
     return enforce(draft, evaluation, decided_by)
+
+
+def decide_leave_request(record: LeaveRequest, policy: dict[str, Any]) -> AgentDecision:
+    """Leave-specific alias for `decide_record`, kept for readability."""
+    from models.common import WorkflowType
+    from workflows.registry import binding_for
+
+    return decide_record(record, policy, binding_for(WorkflowType.LEAVE_APPROVAL))
+
+
+def decide_payroll_item(record: PayrollItem, policy: dict[str, Any]) -> AgentDecision:
+    """Payroll-specific alias for `decide_record`, kept for readability."""
+    from models.common import WorkflowType
+    from workflows.registry import binding_for
+
+    return decide_record(record, policy, binding_for(WorkflowType.PAYROLL_CONFIRMATION))
 
 
 def agent_health() -> dict[str, Any]:

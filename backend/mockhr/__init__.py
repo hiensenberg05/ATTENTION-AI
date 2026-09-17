@@ -7,6 +7,24 @@ independently re-reading that system afterwards.
 """
 
 from .router import BASE_PATH, router
-from .store import store
+from .store import (
+    ActionNotAllowed,
+    RecordNotFound,
+    combined_action_log,
+    leave_store,
+    payroll_store,
+    reset_all,
+    store,
+)
 
-__all__ = ["router", "store", "BASE_PATH"]
+__all__ = [
+    "router",
+    "BASE_PATH",
+    "leave_store",
+    "payroll_store",
+    "store",
+    "reset_all",
+    "combined_action_log",
+    "RecordNotFound",
+    "ActionNotAllowed",
+]

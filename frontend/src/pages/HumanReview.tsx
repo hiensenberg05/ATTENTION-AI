@@ -35,8 +35,15 @@ import {
 } from '@/components/domain'
 import { useAsync } from '@/hooks/useAsync'
 import { fetchJob, fetchJobs, submitHumanDecision } from '@/services/api'
+import {
+  recordContext,
+  recordFields,
+  recordSubtitle,
+  referenceNote,
+  WORKFLOW_LABEL,
+} from '@/lib/record'
+
 import { STATE_LABEL, clockTime, relativeTime } from '@/lib/format'
-import type { LeaveRequest } from '@/types'
 
 function ReviewQueue() {
   const navigate = useNavigate()
@@ -65,7 +72,7 @@ function ReviewQueue() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {queue.map((job) => {
-            const rec = job.record as LeaveRequest
+            const rec = job.record
             return (
               <Card key={job.job_id} className="flex flex-col">
                 <div className="flex items-start gap-3">
@@ -91,7 +98,7 @@ function ReviewQueue() {
 
                 <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
                   <span className="text-[11.5px] text-ink-400">
-                    {rec.request_type ?? '—'} · {rec.request_date ?? 'no date'}
+                    {WORKFLOW_LABEL[job.workflow]} · {recordSubtitle(rec)}
                   </span>
                   <Button size="sm" variant="dark" onClick={() => navigate(`/review/${job.job_id}`)}>
                     Review
@@ -124,7 +131,8 @@ export default function HumanReview() {
   if (error) return <ErrorState message={error} onRetry={reload} />
   if (loading || !job) return <LoadingState label="Loading review…" />
 
-  const rec = job.record as LeaveRequest
+  const rec = job.record
+  const reference = referenceNote(rec)
   const decision = job.decision
   const gates = decision?.policy_checks ?? []
   const blocking = gates.filter((g) => g.passed !== true)
@@ -173,7 +181,7 @@ export default function HumanReview() {
           <>
             <span>{job.job_id}</span>
             <span>·</span>
-            <span>{rec.request_type ?? '—'}</span>
+            <span>{recordSubtitle(rec)}</span>
             <span>·</span>
             <span>Escalated {relativeTime(job.updated_at)}</span>
           </>
@@ -228,60 +236,53 @@ export default function HumanReview() {
                     {rec.employee_id ?? 'no employee_id'}
                   </Mono>
                   <p className="mt-0.5 text-[12px] text-ink-500">
-                    {rec.department ?? 'department missing'}
+                    {recordContext(rec)}
                   </p>
                 </div>
               </div>
               <dl>
                 <FieldRow label="管理ID" value={rec.record_id} mono />
-                <FieldRow label="申請種別" value={rec.request_type ?? ''} missing={!rec.request_type} />
-                <FieldRow label="期間" value={rec.request_date ?? ''} mono missing={!rec.request_date} />
+                {recordFields(rec)
+                  .slice(3)
+                  .map((f) => (
+                    <FieldRow
+                      key={f.label}
+                      label={f.label}
+                      value={f.value}
+                      mono={f.mono}
+                      missing={f.missing}
+                    />
+                  ))}
                 <FieldRow label="ステータス" value={rec.status} />
               </dl>
             </div>
 
+            {/* The reference note this workflow's decision turns on, and the
+                evidence gap behind it. Both workflows have the same shape of gap,
+                so both render through one helper. */}
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div
                 className={cx(
                   'rounded-lg border p-3.5',
-                  rec.prior_approval_required === null
+                  reference.unknown
                     ? 'border-warn-100 bg-warn-50'
                     : 'border-line bg-surface-sunken',
                 )}
               >
-                <p className="label-xs text-ink-400">事前承認要否 (required)</p>
-                <p className="mt-1 text-[14px] font-bold text-ink-900">
-                  {rec.prior_approval_required === null
-                    ? 'Unknown'
-                    : rec.prior_approval_required
-                      ? '要 — required'
-                      : '不要 — not required'}
-                </p>
+                <p className="label-xs text-ink-400">{reference.label}</p>
+                <p className="mt-1 text-[14px] font-bold text-ink-900">{reference.value}</p>
                 <p className="mt-1 text-[11px] leading-snug text-ink-500">
-                  {rec.prior_approval_required === null
-                    ? 'Detail panel was never opened for this record in Dataset B.'
+                  {reference.unknown
+                    ? 'The detail panel carrying this note was never opened for this record in Dataset B.'
                     : 'Read from the record detail panel.'}
                 </p>
               </div>
-              <div
-                className={cx(
-                  'rounded-lg border p-3.5',
-                  rec.prior_approval_obtained === null
-                    ? 'border-warn-100 bg-warn-50'
-                    : 'border-line bg-surface-sunken',
-                )}
-              >
-                <p className="label-xs text-ink-400">Prior approval obtained</p>
-                <p className="mt-1 text-[14px] font-bold text-ink-900">
-                  {rec.prior_approval_obtained === null
-                    ? 'Unknown'
-                    : rec.prior_approval_obtained
-                      ? 'Yes'
-                      : 'No'}
-                </p>
-                <p className="mt-1 text-[11px] leading-snug text-ink-500">
-                  Prototype-only field — Dataset B showed whether approval was <em>required</em>,
-                  never whether it was <em>obtained</em>.
+              <div className="rounded-lg border border-warn-100 bg-warn-50 p-3.5">
+                <p className="label-xs text-ink-400">Why this is the limit</p>
+                <p className="mt-1 text-[12px] leading-snug text-ink-700">{reference.caveat}</p>
+                <p className="mt-1.5 text-[11px] leading-snug text-ink-500">
+                  The prototype escalates rather than assuming the missing half, which is why
+                  this record reached you instead of being actioned.
                 </p>
               </div>
             </div>

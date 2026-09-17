@@ -31,8 +31,9 @@ import {
 import { DecisionBadge, FieldRow, StateBadge, Timeline } from '@/components/domain'
 import { useAsync } from '@/hooks/useAsync'
 import { fetchJob, fetchJobs } from '@/services/api'
+import { recordSubtitle, WORKFLOW_LABEL } from '@/lib/record'
+
 import { STATE_LABEL, clockTime, relativeTime, seconds } from '@/lib/format'
-import type { LeaveRequest } from '@/types'
 
 function ExecutionPicker() {
   const navigate = useNavigate()
@@ -68,7 +69,7 @@ function ExecutionPicker() {
             </thead>
             <tbody>
               {executable.map((job) => {
-                const rec = job.record as LeaveRequest
+                const rec = job.record
                 return (
                   <tr
                     key={job.job_id}
@@ -136,7 +137,7 @@ export default function Execution() {
   if (error) return <ErrorState message={error} onRetry={reload} />
   if (loading || !job) return <LoadingState label="Loading execution…" />
 
-  const rec = job.record as LeaveRequest
+  const rec = job.record
   const exec = job.execution
   const decision = job.decision
 
@@ -366,8 +367,8 @@ export default function Execution() {
               </div>
             </div>
             <dl className="mt-3">
-              <FieldRow label="Request" value={rec.request_type ?? '—'} />
-              <FieldRow label="Date" value={rec.request_date ?? '—'} mono />
+              <FieldRow label="Workflow" value={WORKFLOW_LABEL[job.workflow]} />
+              <FieldRow label="Record" value={recordSubtitle(rec)} />
               <FieldRow label="Decision" value={decision?.decision ?? '—'} mono />
               <FieldRow label="Executed by" value={exec?.executed_by ?? 'agent'} />
               <FieldRow label="Duration" value={seconds(exec?.duration_seconds)} mono />

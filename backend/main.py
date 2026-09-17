@@ -21,15 +21,16 @@ import orchestrator
 import repository
 from agent import agent_health
 from mockhr import router as mockhr_router
-from mockhr import store as hr_store
-from models.common import DecisionType, LeaveStatus, WorkflowType
+from mockhr import leave_store, payroll_store
+from models.common import DecisionType, LeaveStatus, PayrollStatus, WorkflowType
 from models.job import AutomationJob
+from models.payroll import PayrollItem
 from models.leave import LeaveRequest
 from workflows.base import WorkflowDefinition
 
 app = FastAPI(
     title="Back-Office Automation Agent",
-    version="0.2.0",
+    version="0.3.0",
     description=(
         "Bounded workflow-execution prototype built from the Phase 1/2 analysis of "
         "desktop operation logs. An LLM evaluates an explicit policy and produces a "
@@ -62,8 +63,8 @@ def health() -> dict[str, object]:
         "stage": "agent+execution",
         "agent": agent_health(),
         "workflows_defined": len(repository.get_workflows()),
-        "leave_requests_loaded": len(hr_store.all()),
-        "payroll_items_loaded": len(repository.get_payroll_items()),
+        "leave_requests_loaded": len(leave_store.all()),
+        "payroll_items_loaded": len(payroll_store.all()),
     }
 
 
@@ -105,7 +106,7 @@ def list_leave_requests(
     a run a moment ago presents as approved here. A console that showed the seed
     values would be quietly lying about the system it claims to be driving.
     """
-    records = hr_store.all()
+    records = leave_store.all()
     if status is not None:
         records = [r for r in records if r.status is status]
     return records
@@ -119,9 +120,48 @@ def list_leave_requests(
 def get_leave_request(record_id: str) -> LeaveRequest:
     """One leave request by its 管理ID, as it stands in the mock HR system now."""
     try:
-        return hr_store.get(record_id)
+        return leave_store.get(record_id)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"No leave request {record_id!r}")
+
+
+@app.get("/api/payroll-items", response_model=list[PayrollItem], tags=["payroll"])
+def list_payroll_items(
+    status: Optional[PayrollStatus] = Query(
+        default=None, description="Filter by status, e.g. 未処理"
+    ),
+) -> list[PayrollItem]:
+    """The payroll/expense queue as it stands in the mock HR system RIGHT NOW."""
+    records = payroll_store.all()
+    if status is not None:
+        records = [r for r in records if r.status is status]
+    return records
+
+
+@app.get(
+    "/api/payroll-items/{record_id}", response_model=PayrollItem, tags=["payroll"]
+)
+def get_payroll_item(record_id: str) -> PayrollItem:
+    """One payroll item by its 管理ID, as it stands in the mock HR system now."""
+    try:
+        return payroll_store.get(record_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"No payroll item {record_id!r}")
+
+
+@app.get("/api/policy/payroll", tags=["policy"])
+def get_payroll_policy() -> dict[str, object]:
+    """The explicit prototype policy for Payroll Confirmation.
+
+    Carries the `_meta` honesty block and the section's own `production_caveat`,
+    because the amount limit in particular is a demonstration value and must never
+    be read as the client's approval threshold.
+    """
+    return {
+        "_meta": repository.get_policies()["_meta"],
+        "policy_key": "payroll_confirmation",
+        "policy": repository.get_policy("payroll_confirmation"),
+    }
 
 
 @app.get("/api/policy/leave", tags=["policy"])
@@ -164,20 +204,28 @@ class HumanDecisionRequest(BaseModel):
     )
 
 
+RUN_EXECUTION_QUERY = Query(
+    default=True,
+    description="False stops after POLICY_CHECK, so the decision can be inspected "
+    "without any browser action being taken.",
+)
+
+
 @app.post(
-    "/api/automation/leave/{record_id}/start",
+    "/api/automation/{workflow}/{record_id}/start",
     response_model=AutomationJob,
     tags=["automation"],
 )
-def start_leave_automation(
+def start_automation(
+    workflow: WorkflowType,
     record_id: str,
-    run_execution: bool = Query(
-        default=True,
-        description="False stops after POLICY_CHECK, so the decision can be inspected "
-        "without any browser action being taken.",
-    ),
+    run_execution: bool = RUN_EXECUTION_QUERY,
 ) -> AutomationJob:
-    """Run one leave request through the full pipeline.
+    """Run one record of any implemented workflow through the full pipeline.
+
+    One endpoint serves every workflow, because the pipeline is the same one -
+    policy gates, LLM decision, Python guards, and then either execution plus
+    independent verification or a stop at human review.
 
     Synchronous by design: the whole run takes a couple of seconds, and a caller
     that gets the finished job back can show a real result rather than polling a
@@ -185,9 +233,39 @@ def start_leave_automation(
     COMPLETED, FAILED, or HUMAN_REVIEW.
     """
     try:
-        return orchestrator.start_leave_job(record_id, run_execution=run_execution)
+        return orchestrator.start_job(workflow, record_id, run_execution=run_execution)
     except orchestrator.RecordNotFound:
-        raise HTTPException(status_code=404, detail=f"No leave request {record_id!r}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"No {workflow.value} record {record_id!r}",
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@app.post(
+    "/api/automation/leave/{record_id}/start",
+    response_model=AutomationJob,
+    tags=["automation"],
+)
+def start_leave_automation(
+    record_id: str, run_execution: bool = RUN_EXECUTION_QUERY
+) -> AutomationJob:
+    """Leave-specific alias for the generic run endpoint. Kept so existing callers
+    (and the original demo scripts) keep working."""
+    return start_automation(WorkflowType.LEAVE_APPROVAL, record_id, run_execution)
+
+
+@app.post(
+    "/api/automation/payroll/{record_id}/start",
+    response_model=AutomationJob,
+    tags=["automation"],
+)
+def start_payroll_automation(
+    record_id: str, run_execution: bool = RUN_EXECUTION_QUERY
+) -> AutomationJob:
+    """Payroll-specific alias for the generic run endpoint."""
+    return start_automation(WorkflowType.PAYROLL_CONFIRMATION, record_id, run_execution)
 
 
 @app.get(
@@ -256,9 +334,9 @@ def reset_demo() -> dict[str, object]:
     The demo has to be re-runnable, and every run mutates records irreversibly
     (a record can only be approved once). This is the reset button.
     """
-    orchestrator.reset_demo()
+    counts = orchestrator.reset_demo()
     return {
         "status": "reset",
-        "records_restored": len(hr_store.all()),
         "jobs": len(orchestrator.jobs.all()),
+        **counts,
     }

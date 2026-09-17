@@ -38,7 +38,7 @@ import {
 import { useAsync } from '@/hooks/useAsync'
 import { fetchDashboard, fetchJobs, fetchWorkflows } from '@/services/api'
 import { clockTime, pct, relativeTime, seconds } from '@/lib/format'
-import type { AutomationJob, JobState, LeaveRequest } from '@/types'
+import type { AutomationJob, JobState } from '@/types'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -239,7 +239,7 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {recent.map((job: AutomationJob) => {
-                  const rec = job.record as LeaveRequest
+                  const rec = job.record
                   return (
                     <tr
                       key={job.job_id}
@@ -303,7 +303,7 @@ export default function Dashboard() {
             />
             <div className="mt-4 space-y-3">
               {reviewJobs.slice(0, 3).map((job) => {
-                const rec = job.record as LeaveRequest
+                const rec = job.record
                 return (
                   <div key={job.job_id} className="rounded-lg border border-line bg-surface-sunken p-3.5">
                     <div className="flex items-start gap-2.5">

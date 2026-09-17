@@ -20,7 +20,6 @@ from models.common import WorkflowType
 from models.leave import LeaveRequest
 from models.payroll import PayrollItem
 from workflows.base import WorkflowDefinition
-from workflows.leave_approval import LEAVE_APPROVAL_WORKFLOW
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -64,6 +63,14 @@ def get_leave_request(record_id: str) -> LeaveRequest:
     raise RecordNotFound(record_id)
 
 
+def get_payroll_item(record_id: str) -> PayrollItem:
+    """One payroll item by its 管理ID, or raise RecordNotFound."""
+    for record in get_payroll_items():
+        if record.record_id == record_id:
+            return record
+    raise RecordNotFound(record_id)
+
+
 @lru_cache(maxsize=1)
 def get_policies() -> dict[str, Any]:
     """The whole prototype policy document, including its `_meta` honesty block."""
@@ -79,13 +86,14 @@ def get_policy(policy_key: str) -> dict[str, Any]:
 
 
 def get_workflows() -> tuple[WorkflowDefinition, ...]:
-    """Every declared workflow definition.
+    """Every implemented workflow definition, from the registry.
 
-    Only Leave Approval is defined so far. Payroll Confirmation is declared as an
-    enum member and has demo data and a draft policy section, but has no
-    WorkflowDefinition yet and is intentionally absent here.
+    Imported lazily because the registry imports the agent package, which must not
+    be a hard dependency of simply loading data.
     """
-    return (LEAVE_APPROVAL_WORKFLOW,)
+    from workflows.registry import all_definitions
+
+    return all_definitions()
 
 
 def get_workflow(workflow: WorkflowType) -> Optional[WorkflowDefinition]:

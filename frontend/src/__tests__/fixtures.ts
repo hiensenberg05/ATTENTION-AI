@@ -155,6 +155,12 @@ export const leaveRequests: LeaveRequest[] = [
 
 export const payrollItems: PayrollItem[] = [
   {
+    record_id: 'DEMO-PAY-REVIEW', status: '未処理', employee_id: 'E2204',
+    employee_name: '黒田 直樹', category: '研修費', amount: '148500',
+    policy_reference: '申請者区分：manager　承認権限：本部長',
+    comment: null, provenance: 'synthetic_demo', evidence_note: null,
+  },
+  {
     record_id: 'P1-07046967-001', status: '未処理', employee_id: 'E2011', employee_name: '清水 祥平',
     category: '研修費', amount: '25213', policy_reference: '申請者区分：regular　承認権限：部門長',
     comment: null, provenance: 'dataset_b_observed',
@@ -171,7 +177,7 @@ export const payrollItems: PayrollItem[] = [
     provenance: 'dataset_b_list_observed', evidence_note: 'Row visible in list screenshot.',
   },
   {
-    record_id: 'DEMO-PR-001', status: '未処理', employee_id: 'E2201', employee_name: '大野 真一',
+    record_id: 'DEMO-PAY-001', status: '未処理', employee_id: 'E2201', employee_name: '大野 真一',
     category: '研修費', amount: '9800', policy_reference: '申請者区分：regular　承認権限：部門長',
     comment: null, provenance: 'synthetic_demo', evidence_note: null,
   },
@@ -593,6 +599,17 @@ const STAGE_BY_STATE: Record<string, QueueStage> = {
   FAILED: 'Failed',
 }
 
+/** Mirrors `detailLine` in services/api.ts, so the fixtures exercise real copy. */
+function fixtureDetailLine(rec: LeaveRequest): string {
+  const gaps: string[] = []
+  if (!rec.employee_id) gaps.push('employee_id missing')
+  if (!rec.request_date) gaps.push('date missing')
+  if (!rec.department) gaps.push('department missing')
+  if (gaps.length) return gaps.join(' · ')
+  return [rec.request_type, rec.request_date, rec.department].filter(Boolean).join(' · ')
+}
+
+
 function taskFromJob(job: AutomationJob, index: number): QueueTask {
   const rec = job.record as LeaveRequest
   return {
@@ -605,8 +622,8 @@ function taskFromJob(job: AutomationJob, index: number): QueueTask {
     decision: job.decision?.decision ?? null,
     confidence: job.decision?.confidence ?? null,
     submitted_at: job.created_at,
-    detail_line: rec.request_date ?? 'Date missing',
-    duration_label: rec.request_type ?? 'Type missing',
+    detail_line: fixtureDetailLine(rec),
+    duration_label: '—',
     duration_seconds: null,
   }
 }
@@ -630,8 +647,8 @@ export const queueTasks: QueueTask[] = [
       decision: null,
       confidence: null,
       submitted_at: minsAgo(60 + i * 7),
-      detail_line: r.request_date ?? 'Date missing',
-      duration_label: r.request_type ?? 'Type missing',
+      detail_line: fixtureDetailLine(r),
+      duration_label: '—',
       duration_seconds: null,
     })),
 ]
@@ -742,3 +759,147 @@ export const throughputSeries = Array.from({ length: 30 }, (_, i) => {
   const human = 2 + ((i * 7) % 4)
   return { day: i, auto, human }
 })
+
+/* ========================================================================== */
+/* Payroll Confirmation jobs - workflow #2                                    */
+/* ========================================================================== */
+
+const PAYROLL_POLICY = 'payroll-confirmation-prototype-v1'
+
+function payrollGates(amountPassed: boolean, amountDetail: string) {
+  return [
+    { check_id: 'status_actionable', description: 'Status must be \u672a\u51e6\u7406', passed: true, detail: 'Status is \u672a\u51e6\u7406, which is actionable.' },
+    { check_id: 'required_fields_present', description: 'All required fields present', passed: true, detail: 'Every required field is populated.' },
+    { check_id: 'category_allowed', description: '\u533a\u5206 must be auto-confirmable', passed: true, detail: '\u7814\u4fee\u8cbb is in the policy list.' },
+    { check_id: 'policy_reference_present', description: '\u53c2\u7167 must be present', passed: true, detail: 'Approval authority read from the detail panel.' },
+    { check_id: 'amount_within_limit', description: '\u91d1\u984d within the configured prototype limit', passed: amountPassed, detail: amountDetail },
+  ]
+}
+
+export const payrollJobs: AutomationJob[] = [
+  {
+    job_id: 'JOB-3001',
+    workflow: 'PAYROLL_CONFIRMATION',
+    state: 'COMPLETED',
+    record: payrollItems.find((r) => r.record_id === 'DEMO-PAY-001')!,
+    decision: {
+      decision: 'APPROVE',
+      reason:
+        'Every gate passed: the item is unprocessed, \u7814\u4fee\u8cbb is auto-confirmable, the \u53c2\u7167 note is present, and the amount is within the configured prototype limit.',
+      confidence: 0.95,
+      human_review_required: false,
+      ambiguity_type: null,
+      policy_version: PAYROLL_POLICY,
+      decided_at: minsAgo(6),
+      decided_by: 'llm+policy_guard',
+      policy_checks: payrollGates(true, '9800 JPY is at or below the prototype limit of 30000.'),
+    },
+    human_decision: null,
+    execution: {
+      action: 'CONFIRM_PAYROLL',
+      workflow: 'PAYROLL_CONFIRMATION',
+      record_id: 'DEMO-PAY-001',
+      success: true,
+      steps_completed: [
+        { name: 'Open the work queue', completed: true, detail: '/mock-hr/payroll-items', error: null, at: minsAgo(6) },
+        { name: 'Locate and open the record', completed: true, detail: 'Opened DEMO-PAY-001', error: null, at: minsAgo(6) },
+        { name: 'Click \u767b\u9332\u78ba\u5b9a and submit', completed: true, detail: 'Located by [data-testid], not by position.', error: null, at: minsAgo(6) },
+        { name: 'Independently re-read the record status', completed: true, detail: 'Re-read from the queue screen: status is \u767b\u9332\u78ba\u5b9a\u6e08\u307f.', error: null, at: minsAgo(6) },
+      ],
+      verification_status: 'VERIFIED',
+      status_before: '\u672a\u51e6\u7406',
+      status_after: '\u767b\u9332\u78ba\u5b9a\u6e08\u307f',
+      error: null,
+      started_at: minsAgo(6),
+      finished_at: minsAgo(6),
+      duration_seconds: 1.48,
+      executed_by: 'agent',
+    },
+    state_history: [
+      { from_state: 'START', to_state: 'LOADING', at: minsAgo(7), note: null },
+      { from_state: 'POLICY_CHECK', to_state: 'EXECUTING', at: minsAgo(6), note: null },
+      { from_state: 'VERIFYING', to_state: 'COMPLETED', at: minsAgo(6), note: 'Verified: \u672a\u51e6\u7406 -> \u767b\u9332\u78ba\u5b9a\u6e08\u307f' },
+    ],
+    error: null,
+    created_at: minsAgo(7),
+    updated_at: minsAgo(6),
+  },
+  {
+    job_id: 'JOB-3002',
+    workflow: 'PAYROLL_CONFIRMATION',
+    state: 'HUMAN_REVIEW',
+    record: payrollItems.find((r) => r.record_id === 'DEMO-PAY-REVIEW')!,
+    decision: {
+      decision: 'REVIEW',
+      reason:
+        'The amount exceeds the configured prototype limit. Dataset B never revealed the real approval thresholds, so anything above the configured value escalates rather than being refused.',
+      confidence: 0.35,
+      human_review_required: true,
+      ambiguity_type: 'POLICY_NOT_COVERED',
+      policy_version: PAYROLL_POLICY,
+      decided_at: minsAgo(3),
+      decided_by: 'llm+policy_guard',
+      policy_checks: payrollGates(false, '148500 JPY exceeds the prototype limit of 30000.'),
+    },
+    human_decision: null,
+    execution: null,
+    state_history: [
+      { from_state: 'ANALYZING', to_state: 'POLICY_CHECK', at: minsAgo(3), note: null },
+      { from_state: 'POLICY_CHECK', to_state: 'HUMAN_REVIEW', at: minsAgo(3), note: 'Amount above the configured prototype limit.' },
+    ],
+    error: null,
+    created_at: minsAgo(4),
+    updated_at: minsAgo(3),
+  },
+]
+
+/** Every job across both workflows - what `/api/automation/history` returns. */
+export const allJobs: AutomationJob[] = [...payrollJobs, ...jobs]
+
+/** Payroll rows nothing has run yet, plus the two that have. */
+export const payrollQueueTasks: QueueTask[] = [
+  ...payrollJobs.map((job, i): QueueTask => ({
+    task_id: `#PR-${7700 + i}`,
+    job_id: job.job_id,
+    workflow: 'PAYROLL_CONFIRMATION',
+    record: job.record,
+    state: job.state,
+    stage: STAGE_BY_STATE[job.state],
+    decision: job.decision?.decision ?? null,
+    confidence: job.decision?.confidence ?? null,
+    submitted_at: job.created_at,
+    detail_line: payrollDetailLine(job.record as PayrollItem),
+    duration_label: job.execution ? `${job.execution.duration_seconds?.toFixed(2)}s` : '\u2014',
+    duration_seconds: job.execution?.duration_seconds ?? null,
+  })),
+  ...payrollItems
+    .filter((r) => !payrollJobs.some((j) => j.record.record_id === r.record_id))
+    .map((r, i): QueueTask => ({
+      task_id: `#PR-${7750 + i}`,
+      job_id: '',
+      workflow: 'PAYROLL_CONFIRMATION',
+      record: r,
+      state: 'START',
+      stage: 'Queued',
+      decision: null,
+      confidence: null,
+      submitted_at: minsAgo(40 + i * 5),
+      detail_line: payrollDetailLine(r),
+      duration_label: '\u2014',
+      duration_seconds: null,
+    })),
+]
+
+/** Mirrors the payroll branch of `detailLine` in services/api.ts. */
+function payrollDetailLine(rec: PayrollItem): string {
+  const gaps: string[] = []
+  if (!rec.employee_id) gaps.push('employee_id missing')
+  if (!rec.category) gaps.push('category missing')
+  if (!rec.amount) gaps.push('amount missing')
+  if (!rec.policy_reference) gaps.push('\u53c2\u7167 note missing')
+  if (gaps.length) return gaps.join(' \u00b7 ')
+  return [rec.category, `\u00a5${Number(rec.amount).toLocaleString('ja-JP')}`].join(' \u00b7 ')
+}
+
+/** Both queues, as the live `fetchQueue` assembles them. */
+export const allQueueTasks: QueueTask[] = [...queueTasks, ...payrollQueueTasks]

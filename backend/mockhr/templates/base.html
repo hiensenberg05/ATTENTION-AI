@@ -23,6 +23,9 @@
   }
   header.sys h1 { font-size: 15px; margin: 0; font-weight: 600; letter-spacing: .02em; }
   header.sys .env { font-size: 11px; color: #9fb2c8; }
+  nav.sysnav { margin-left: auto; display: flex; gap: 14px; }
+  nav.sysnav a { color: #cfe0f2; font-size: 12px; text-decoration: none; }
+  nav.sysnav a:hover { color: #fff; text-decoration: underline; }
   nav.crumbs { padding: 10px 20px; font-size: 12px; color: var(--muted); }
   nav.crumbs a { color: var(--accent); }
   main { padding: 0 20px 40px; max-width: 1080px; }
@@ -34,6 +37,7 @@
   table { width: 100%; border-collapse: collapse; background: var(--panel); }
   th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
   th { background: #dde3ea; font-weight: 600; font-size: 12.5px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   tbody tr:hover { background: #f3f7fc; }
   a { color: var(--accent); }
   dl.fields { display: grid; grid-template-columns: 180px 1fr; gap: 0; margin: 0; }
@@ -67,6 +71,10 @@
 <header class="sys">
   <h1>社内人事システム</h1>
   <span class="env" data-testid="system-banner">MOCK INTERNAL HR APPLICATION &mdash; prototype stand-in, not a real system</span>
+  <nav class="sysnav">
+    <a href="/mock-hr/leave-applications" data-testid="nav-leave">休暇申請</a>
+    <a href="/mock-hr/payroll-items" data-testid="nav-payroll">経費精算・給与変更</a>
+  </nav>
 </header>
 {% block body %}{% endblock %}
 <footer class="sys">

@@ -30,12 +30,14 @@ import {
   Td,
   Th,
 } from '@/components/ui'
+import { cx } from '@/components/ui'
 import { MiniRing } from '@/components/charts'
 import { DemoDataNotice, ProvenanceBadge, StageBadge } from '@/components/domain'
 import { useAsync } from '@/hooks/useAsync'
-import { fetchQueue, startLeaveAutomation } from '@/services/api'
+import { fetchQueue, startAutomation } from '@/services/api'
+import { isPending, searchableText, WORKFLOW_LABEL } from '@/lib/record'
 import { pct, relativeTime, seconds } from '@/lib/format'
-import type { LeaveRequest, QueueTask } from '@/types'
+import type { QueueTask } from '@/types'
 
 type TabId = 'all' | 'leave' | 'payroll' | 'review' | 'failed'
 
@@ -69,14 +71,10 @@ export default function TaskQueue() {
       if (tab === 'failed' && t.stage !== 'Failed') return false
       if (stageFilter !== 'all' && t.stage !== stageFilter) return false
       if (query) {
-        const rec = t.record as LeaveRequest
+        const rec = t.record
         const haystack = [
+          searchableText(rec),
           t.task_id,
-          rec.record_id,
-          rec.employee_id ?? '',
-          rec.employee_name ?? '',
-          rec.department ?? '',
-          rec.request_type ?? '',
         ]
           .join(' ')
           .toLowerCase()
@@ -122,11 +120,11 @@ export default function TaskQueue() {
    * button stays busy for the real duration rather than for a fixed animation.
    */
   async function runTask(task: QueueTask) {
-    const recordId = (task.record as LeaveRequest).record_id
+    const recordId = task.record.record_id
     setRunning(recordId)
     setRunError(null)
     try {
-      const job = await startLeaveAutomation(recordId)
+      const job = await startAutomation(task.workflow, recordId)
       await reload()
       navigate(job.state === 'HUMAN_REVIEW' ? `/review/${job.job_id}` : `/execution/${job.job_id}`)
     } catch (err) {
@@ -156,9 +154,7 @@ export default function TaskQueue() {
    * the whole queue shows the real split instead of the first seven rows of it.
    */
   async function runAllPending() {
-    const pending = tasks.filter(
-      (t) => !t.job_id && (t.record as LeaveRequest).status === '申請中',
-    )
+    const pending = tasks.filter((t) => !t.job_id && isPending(t.record))
     if (pending.length === 0) return
 
     setRunError(null)
@@ -170,7 +166,7 @@ export default function TaskQueue() {
     for (const [i, task] of pending.entries()) {
       if (cancelBulk.current) break
       try {
-        const job = await startLeaveAutomation((task.record as LeaveRequest).record_id)
+        const job = await startAutomation(task.workflow, task.record.record_id)
         if (job.state === 'HUMAN_REVIEW') tally.escalated += 1
         else if (job.state === 'COMPLETED') tally.approved += 1
         else tally.failed += 1
@@ -188,9 +184,7 @@ export default function TaskQueue() {
     await reload()
   }
 
-  const pendingUnrun = tasks.filter(
-    (t) => !t.job_id && (t.record as LeaveRequest).status === '申請中',
-  ).length
+  const pendingUnrun = tasks.filter((t) => !t.job_id && isPending(t.record)).length
 
   return (
     <>
@@ -369,7 +363,7 @@ export default function TaskQueue() {
               <tr>
                 <Th className="w-10" />
                 <Th>Task</Th>
-                <Th>Employee &amp; dept</Th>
+                <Th>Employee</Th>
                 <Th>Workflow</Th>
                 <Th>Requested</Th>
                 <Th>Provenance</Th>
@@ -379,7 +373,7 @@ export default function TaskQueue() {
             </thead>
             <tbody>
               {filtered.map((task) => {
-                const rec = task.record as LeaveRequest
+                const rec = task.record
                 return (
                   <tr
                     key={task.task_id}
@@ -413,20 +407,27 @@ export default function TaskQueue() {
                             {rec.employee_id ?? (
                               <span className="text-risk-500">employee_id missing</span>
                             )}
-                            {rec.department ? ` · ${rec.department}` : ''}
                           </span>
                         </span>
                       </span>
                     </Td>
                     <Td>
                       <span className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-brand-600" />
-                        <span className="text-[12.5px]">{task.duration_label}</span>
+                        <span
+                          className={cx(
+                            'h-1.5 w-1.5 rounded-full',
+                            task.workflow === 'LEAVE_APPROVAL' ? 'bg-brand-600' : 'bg-info-500',
+                          )}
+                        />
+                        <span className="text-[12.5px]">{WORKFLOW_LABEL[task.workflow]}</span>
+                      </span>
+                      <span className="mt-0.5 block text-[11px] text-ink-400 tnum">
+                        {task.duration_label}
                       </span>
                     </Td>
                     <Td>
-                      <span className="block font-mono text-[12px] tnum text-ink-700">
-                        {rec.request_date ?? <span className="text-risk-500">date missing</span>}
+                      <span className="block text-[12px] text-ink-700">
+                        {task.detail_line}
                       </span>
                       <span className="block text-[11px] text-ink-400">
                         {relativeTime(task.submitted_at)}

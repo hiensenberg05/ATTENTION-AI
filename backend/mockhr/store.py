@@ -6,9 +6,15 @@ thing whose status actually changes when a button is clicked, and the thing the
 verification step independently re-reads afterwards.
 
 That separation is the point of the whole prototype. The executor does not tell
-the platform "I approved it"; it clicks a control in a system it does not own, and
-then a second, independent read against that same system decides whether anything
-really happened.
+the platform "I confirmed it"; it clicks a control in a system it does not own,
+and then a second, independent read against that same system decides whether
+anything really happened.
+
+ONE STORE CLASS, TWO QUEUES. Leave requests and payroll items behave identically
+as far as the mock system is concerned - a record is pending, an action moves it
+to one of two terminal labels, and it cannot be actioned twice - so the behaviour
+lives in one generic class parameterised by the status labels. Adding a third
+queue is a `RecordStore(...)` call, not another class.
 
 In-memory on purpose. The demo must be repeatable, so `reset()` restores the seed
 and the process holds no durable state.
@@ -18,25 +24,16 @@ from __future__ import annotations
 
 import threading
 from datetime import datetime, timezone
-from typing import Literal, Optional
+from typing import Callable, Generic, Literal, Optional, Sequence, TypeVar
 
 import repository
-from models.common import LeaveStatus
+from models.common import LeaveStatus, PayrollStatus
 from models.leave import LeaveRequest
+from models.payroll import PayrollItem
 
 Action = Literal["approve", "reject"]
 
-#: What each action does to a record's status. Both post-action labels are
-#: PROTOTYPE ASSUMPTIONS - no approved or returned record was ever captured in
-#: Dataset B, only the button labels were. See `models.common.LeaveStatus`.
-ACTION_RESULT: dict[Action, LeaveStatus] = {
-    "approve": LeaveStatus.APPROVED,
-    "reject": LeaveStatus.RETURNED,
-}
-
-#: Only a pending record can be acted on, mirroring the real screen where the
-#: action buttons are only meaningful on a 申請中 row.
-ACTIONABLE_STATUS = LeaveStatus.PENDING
+R = TypeVar("R", LeaveRequest, PayrollItem)
 
 
 class RecordNotFound(KeyError):
@@ -50,16 +47,26 @@ class ActionNotAllowed(RuntimeError):
 class ActionLogEntry:
     """One action the mock HR system recorded, for the demo's own audit panel."""
 
-    __slots__ = ("record_id", "action", "status_before", "status_after", "comment", "at")
+    __slots__ = (
+        "queue",
+        "record_id",
+        "action",
+        "status_before",
+        "status_after",
+        "comment",
+        "at",
+    )
 
     def __init__(
         self,
+        queue: str,
         record_id: str,
         action: Action,
         status_before: str,
         status_after: str,
         comment: Optional[str],
     ) -> None:
+        self.queue = queue
         self.record_id = record_id
         self.action = action
         self.status_before = status_before
@@ -69,6 +76,7 @@ class ActionLogEntry:
 
     def as_dict(self) -> dict[str, object]:
         return {
+            "queue": self.queue,
             "record_id": self.record_id,
             "action": self.action,
             "status_before": self.status_before,
@@ -78,12 +86,25 @@ class ActionLogEntry:
         }
 
 
-class LeaveStore:
-    """The mock HR system's live leave-application table."""
+class RecordStore(Generic[R]):
+    """One mutable queue of business records inside the mock HR system."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        queue: str,
+        seed: Callable[[], Sequence[R]],
+        pending_status: object,
+        positive_status: object,
+        negative_status: object,
+    ) -> None:
+        self.queue = queue
+        self._seed = seed
+        self._pending = pending_status
+        #: Both post-action labels are PROTOTYPE ASSUMPTIONS - no processed record
+        #: was ever captured in Dataset B, only the button labels were.
+        self._result = {"approve": positive_status, "reject": negative_status}
         self._lock = threading.RLock()
-        self._records: dict[str, LeaveRequest] = {}
+        self._records: dict[str, R] = {}
         self._log: list[ActionLogEntry] = []
         self.reset()
 
@@ -95,18 +116,15 @@ class LeaveStore:
         backend shares.
         """
         with self._lock:
-            self._records = {
-                r.record_id: r.model_copy(deep=True)
-                for r in repository.get_leave_requests()
-            }
+            self._records = {r.record_id: r.model_copy(deep=True) for r in self._seed()}
             self._log = []
 
-    def all(self) -> list[LeaveRequest]:
+    def all(self) -> list[R]:
         """Every record, in seed order."""
         with self._lock:
             return [r.model_copy(deep=True) for r in self._records.values()]
 
-    def get(self, record_id: str) -> LeaveRequest:
+    def get(self, record_id: str) -> R:
         """One record by 管理ID, or raise RecordNotFound."""
         with self._lock:
             record = self._records.get(record_id)
@@ -116,7 +134,7 @@ class LeaveStore:
 
     def apply_action(
         self, record_id: str, action: Action, comment: Optional[str] = None
-    ) -> LeaveRequest:
+    ) -> R:
         """Perform an action on a record and return its new state.
 
         Raises ActionNotAllowed if the record is not pending. That refusal is
@@ -129,23 +147,24 @@ class LeaveStore:
             if record is None:
                 raise RecordNotFound(record_id)
 
-            if record.status is not ACTIONABLE_STATUS:
+            if record.status is not self._pending:
                 raise ActionNotAllowed(
                     f"{record_id} is {record.status.value}; only "
-                    f"{ACTIONABLE_STATUS.value} records can be actioned."
+                    f"{self._pending.value} records can be actioned."  # type: ignore[attr-defined]
                 )
 
             before = record.status
             updated = record.model_copy(
                 deep=True,
                 update={
-                    "status": ACTION_RESULT[action],
+                    "status": self._result[action],
                     "comment": comment or record.comment,
                 },
             )
             self._records[record_id] = updated
             self._log.append(
                 ActionLogEntry(
+                    queue=self.queue,
                     record_id=record_id,
                     action=action,
                     status_before=before.value,
@@ -156,10 +175,41 @@ class LeaveStore:
             return updated.model_copy(deep=True)
 
     def action_log(self) -> list[dict[str, object]]:
-        """Everything the mock HR system has been asked to do, oldest first."""
+        """Everything this queue has been asked to do, oldest first."""
         with self._lock:
             return [entry.as_dict() for entry in self._log]
 
 
-#: Process-wide singleton. The mock HR system is one system; there is one of it.
-store = LeaveStore()
+#: Process-wide singletons. The mock HR system is one system; there is one of it.
+leave_store: RecordStore[LeaveRequest] = RecordStore(
+    queue="leave-applications",
+    seed=repository.get_leave_requests,
+    pending_status=LeaveStatus.PENDING,
+    positive_status=LeaveStatus.APPROVED,
+    negative_status=LeaveStatus.RETURNED,
+)
+
+payroll_store: RecordStore[PayrollItem] = RecordStore(
+    queue="payroll-items",
+    seed=repository.get_payroll_items,
+    pending_status=PayrollStatus.UNPROCESSED,
+    positive_status=PayrollStatus.CONFIRMED,
+    negative_status=PayrollStatus.ON_HOLD,
+)
+
+#: Backwards-compatible alias - `store` meant the leave queue before payroll existed.
+store = leave_store
+
+ALL_STORES: tuple[RecordStore, ...] = (leave_store, payroll_store)
+
+
+def reset_all() -> None:
+    """Restore every queue, so the demo can be re-run from a clean state."""
+    for s in ALL_STORES:
+        s.reset()
+
+
+def combined_action_log() -> list[dict[str, object]]:
+    """Every action across every queue, oldest first."""
+    entries = [e for s in ALL_STORES for e in s.action_log()]
+    return sorted(entries, key=lambda e: str(e["at"]))

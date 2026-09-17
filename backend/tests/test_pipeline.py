@@ -17,10 +17,10 @@ import uvicorn
 
 import orchestrator
 import repository
-from execution import ActionNotAutoExecutable, LeaveApprovalExecutor, execute_leave_decision
+from execution import ActionNotAutoExecutable, LeaveApprovalExecutor, execute_decision
 from models.common import DecisionType, LeaveStatus, WorkflowType
 from models.execution import VerificationStatus
-from mockhr import store as hr_store
+from mockhr import leave_store as hr_store
 from state.machine import (
     ALLOWED_TRANSITIONS,
     InvalidTransition,
@@ -132,7 +132,7 @@ def test_state_and_decision_stay_independent():
 def test_rejection_is_never_auto_executable():
     workflow = repository.get_workflow(WorkflowType.LEAVE_APPROVAL)
     with pytest.raises(ActionNotAutoExecutable):
-        execute_leave_decision(
+        execute_decision(
             repository.get_leave_request("DEMO-LV-001"), DecisionType.REJECT, workflow
         )
 

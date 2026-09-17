@@ -37,8 +37,14 @@ import {
 } from '@/components/domain'
 import { useAsync } from '@/hooks/useAsync'
 import { fetchJob, fetchJobs } from '@/services/api'
+import {
+  recordContext,
+  recordFields,
+  recordSubtitle,
+  referenceNote,
+} from '@/lib/record'
+
 import { STATE_LABEL, clockTime, relativeTime } from '@/lib/format'
-import type { LeaveRequest } from '@/types'
 
 /** Picker shown at /agent when no specific job is selected. */
 function JobPicker() {
@@ -73,7 +79,7 @@ function JobPicker() {
             </thead>
             <tbody>
               {decided.map((job) => {
-                const rec = job.record as LeaveRequest
+                const rec = job.record
                 return (
                   <tr
                     key={job.job_id}
@@ -94,7 +100,7 @@ function JobPicker() {
                         </span>
                       </span>
                     </Td>
-                    <Td>{rec.request_type ?? '—'}</Td>
+                    <Td>{recordSubtitle(rec)}</Td>
                     <Td>
                       <DecisionBadge
                         decision={job.decision!.decision}
@@ -130,7 +136,8 @@ export default function AgentProcessing() {
   if (error) return <ErrorState message={error} onRetry={reload} />
   if (loading || !job) return <LoadingState label="Loading agent evaluation…" />
 
-  const rec = job.record as LeaveRequest
+  const rec = job.record
+  const reference = referenceNote(rec)
   const decision = job.decision
   const gates = decision?.policy_checks ?? []
   const cleared = gates.filter((g) => g.passed === true).length
@@ -211,7 +218,7 @@ export default function AgentProcessing() {
               <div className="min-w-0">
                 <p className="text-[15px] font-bold text-ink-900">{rec.employee_name ?? '—'}</p>
                 <Mono className="text-[11.5px] text-ink-400">{rec.employee_id ?? 'no employee_id'}</Mono>
-                <p className="mt-0.5 text-[12px] text-ink-500">{rec.department ?? 'department missing'}</p>
+                <p className="mt-0.5 text-[12px] text-ink-500">{recordContext(rec)}</p>
               </div>
             </div>
 
@@ -221,24 +228,28 @@ export default function AgentProcessing() {
 
             <dl className="mt-4">
               <FieldRow label="管理ID / Record" value={rec.record_id} mono />
-              <FieldRow label="申請種別 / Type" value={rec.request_type ?? ''} missing={!rec.request_type} />
-              <FieldRow label="期間 / Date" value={rec.request_date ?? ''} mono missing={!rec.request_date} />
-              <FieldRow label="所属部署 / Dept" value={rec.department ?? ''} missing={!rec.department} />
+              {recordFields(rec)
+                .slice(3)
+                .map((f) => (
+                  <FieldRow
+                    key={f.label}
+                    label={f.label}
+                    value={f.value}
+                    mono={f.mono}
+                    missing={f.missing}
+                  />
+                ))}
               <FieldRow label="ステータス / Status" value={rec.status} />
+              {/* The 参照 note each workflow's decision turns on. Rendered from one
+                  helper so neither workflow's field names leak into this screen. */}
               <FieldRow
-                label="事前承認要否"
+                label={reference.label}
                 value={
-                  rec.prior_approval_required === null
-                    ? <span className="text-warn-700">unknown</span>
-                    : rec.prior_approval_required ? '要 (required)' : '不要 (not required)'
-                }
-              />
-              <FieldRow
-                label="Prior approval obtained"
-                value={
-                  rec.prior_approval_obtained === null
-                    ? <span className="text-warn-700">unknown</span>
-                    : rec.prior_approval_obtained ? 'yes' : 'no'
+                  reference.unknown ? (
+                    <span className="text-warn-700">unknown</span>
+                  ) : (
+                    reference.value
+                  )
                 }
               />
             </dl>

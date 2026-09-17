@@ -13,14 +13,26 @@ a confidence. Everything it returns then passes through `guards.enforce`, which
 can only ever make the outcome MORE conservative.
 """
 
-from .policy_engine import PolicyEvaluation, evaluate_leave_request
+from .policy_engine import (
+    PolicyEvaluation,
+    evaluate_leave_request,
+    evaluate_payroll_item,
+)
 from .guards import enforce
-from .decision_agent import decide_leave_request, agent_health
+from .decision_agent import (
+    agent_health,
+    decide_leave_request,
+    decide_payroll_item,
+    decide_record,
+)
 
 __all__ = [
     "PolicyEvaluation",
     "evaluate_leave_request",
+    "evaluate_payroll_item",
     "enforce",
+    "decide_record",
     "decide_leave_request",
+    "decide_payroll_item",
     "agent_health",
 ]

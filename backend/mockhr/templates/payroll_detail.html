@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}経費精算詳細 {{ record.record_id }} | 社内人事システム{% endblock %}
+{% block body %}
+<nav class="crumbs">
+  ホーム &rsaquo; 給与管理 &rsaquo;
+  <a href="{{ base }}/payroll-items" data-testid="payroll-back-to-list">経費精算・給与変更一覧</a> &rsaquo;
+  <strong>{{ record.record_id }}</strong>
+</nav>
+<main>
+  <h2>経費精算・給与変更 詳細</h2>
+
+  {% if flash %}
+  <div class="banner banner-ok" data-testid="action-result">{{ flash }}</div>
+  {% endif %}
+  {% if error %}
+  <div class="banner banner-warn" data-testid="action-error">{{ error }}</div>
+  {% endif %}
+
+  <div class="panel" data-testid="payroll-detail">
+    <dl class="fields">
+      <dt>管理ID</dt>
+      <dd data-testid="payroll-detail-record-id">{{ record.record_id }}</dd>
+
+      <dt>社員ID</dt>
+      <dd data-testid="payroll-detail-employee-id">
+        {% if record.employee_id %}{{ record.employee_id }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>氏名</dt>
+      <dd data-testid="payroll-detail-employee-name">
+        {% if record.employee_name %}{{ record.employee_name }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>区分</dt>
+      <dd data-testid="payroll-detail-category">
+        {% if record.category %}{{ record.category }}{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>金額</dt>
+      <dd data-testid="payroll-detail-amount">
+        {% if record.amount is not none %}{{ "{:,}".format(record.amount|int) }} 円{% else %}<span class="unknown">未登録</span>{% endif %}
+      </dd>
+
+      <dt>ステータス</dt>
+      <dd data-testid="payroll-status">
+        <span class="status {{ status_class(record.status.value) }}">{{ record.status.value }}</span>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="panel">
+    <strong>参照</strong>
+    <p data-testid="payroll-detail-policy-reference">
+      {% if record.policy_reference %}{{ record.policy_reference }}{% else %}<span class="unknown">記載なし</span>{% endif %}
+    </p>
+    <p class="note">
+      この欄は申請者区分と承認権限の区分のみを示します。金額ごとの承認上限は当画面には
+      表示されません。
+    </p>
+  </div>
+
+  <form method="post" action="{{ base }}/payroll-items/{{ record.record_id }}/action">
+    <div class="panel">
+      <label for="payroll-comment"><strong>処理コメント</strong>（任意）</label>
+      <textarea id="payroll-comment" name="comment" data-testid="payroll-comment"
+                {% if not actionable %}disabled{% endif %}>{{ record.comment or '' }}</textarea>
+
+      <div class="actions">
+        <button type="submit" name="action" value="approve" class="approve"
+                data-testid="payroll-confirm" {% if not actionable %}disabled{% endif %}>登録確定</button>
+        <button type="submit" name="action" value="reject" class="reject"
+                data-testid="payroll-hold" {% if not actionable %}disabled{% endif %}>保留</button>
+        {% if not actionable %}
+        <span class="note" data-testid="payroll-not-actionable-note">
+          この明細は既に処理済みのため操作できません。
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+</main>
+{% endblock %}

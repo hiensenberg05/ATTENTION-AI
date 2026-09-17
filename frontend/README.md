@@ -3,9 +3,12 @@
 Operations console for the Step 3 prototype. React 19 + Vite + TypeScript +
 Tailwind v4. Separate from the Phase 1/2 analysis code, which is untouched.
 
-**Stage: connected.** Every screen reads live data from the FastAPI backend. Runs
-started here call the real agent, drive a real browser, and show real measured
-outcomes.
+**Stage: connected, two workflows.** Every screen reads live data from the FastAPI
+backend. Runs started here call the real agent, drive a real browser, and show real
+measured outcomes. Leave Approval and Payroll Confirmation share every screen — the
+queue, the policy gates, the execution trace, the review form and the audit trail
+are workflow-neutral, and the per-workflow field differences live in
+`src/lib/record.ts`.
 
 ## Run
 
@@ -25,7 +28,7 @@ Other scripts: `npm run build`, `npm run test`, `npm run typecheck`, `npm run li
 | Route | Screen | What it shows |
 |---|---|---|
 | `/` | Overview & Metrics | Pipeline strip, KPIs from real runs, workflow cards with Phase 2 evidence, recent decisions, review queue, decision split, connectors |
-| `/queue` | Workflow Task Queue | Every record with its live HR status and provenance, plus the **Run agent** action that starts a real run |
+| `/queue` | Workflow Task Queue | Every record from **both** queues with its live HR status, workflow label and provenance, plus the **Run agent** action that starts a real run |
 | `/agent`, `/agent/:jobId` | Agent Policy & Decision | Record fields, policy gates (pass/fail/not-evaluable), decision + confidence, state transitions, audit provenance |
 | `/execution`, `/execution/:jobId` | Step Automation Execution | The deterministic steps Playwright actually performed, before→after status, verification outcome |
 | `/review`, `/review/:jobId` | Human Review Queue | Escalation cards, why it stopped, operator determination form with mandatory audit note |
@@ -42,12 +45,18 @@ yet has no job to open — run it first.
 3. **Run agent** on `DEMO-LV-001`. Every gate passes, so it auto-approves,
    Playwright performs the action, and verification confirms the status changed.
    You land on the execution trace.
-4. **Run agent** on `P2-07048822-006` — the one screenshot-confirmed Dataset B
-   record. It escalates, because Dataset B showed whether prior approval was
-   *required*, never whether it was *obtained*. You land in human review.
-5. Choose a determination, write the mandatory audit note, confirm. The run
-   happens then — your authorisation is what releases it to the executor.
-6. `/history` shows both runs with their real durations.
+4. **Run agent** on `P1-07046967-001` — the screenshot-confirmed *payroll* record.
+   It auto-confirms, which reproduces the action an operator was actually observed
+   taking in Dataset B. This is the strongest single demo in the prototype.
+5. **Run agent** on `P2-07048822-006` — the screenshot-confirmed *leave* record. It
+   escalates, because Dataset B showed whether prior approval was *required*, never
+   whether it was *obtained*. You land in human review.
+6. Choose a determination, write the mandatory audit note, confirm. The run happens
+   then — your authorisation is what releases it to the executor.
+7. **Run agent** on `DEMO-PAY-REVIEW` for the safety case: the amount exceeds the
+   configured prototype limit, so a deterministic gate fails and **nothing touches
+   the browser** until a human authorises it.
+8. `/history` shows every run, both workflows, with real measured durations.
 
 Watch it work by starting the backend with `PLAYWRIGHT_HEADLESS=false`.
 
@@ -58,7 +67,9 @@ src/
 ├── types/index.ts          TS mirrors of the backend Pydantic models (1:1)
 ├── services/api.ts         the ONLY place components fetch from
 ├── hooks/useAsync.ts       loading / error / reload for every screen
-├── lib/format.ts           formatters + status→tone maps
+├── lib/
+│   ├── format.ts           formatters + status→tone maps
+│   └── record.ts           workflow-neutral record rendering (fields, reference note)
 ├── components/
 │   ├── ui/                 Card, Badge, Button, StatCard, Table, Tabs, states…
 │   ├── charts/             Donut, Sparkline, StackedBars, MiniRing (hand-rolled SVG)
@@ -105,7 +116,9 @@ was *obtained*.
 `npm run test` mounts all six screens in jsdom, waits for data, and asserts the
 populated state — not just that components import. It also guards the data
 integrity rules above (provenance mix, grounded record fidelity, `DEMO-` prefix,
-REVIEW ⇒ human review). 17 tests.
+REVIEW ⇒ human review) and the payroll workflow's own paths (both queues in one
+table, the five payroll gates, the over-limit escalation, the confirmed execution,
+and that a hold is never auto-executed). 23 tests.
 
 `services/api` is replaced with `__tests__/fixtures.ts` in these tests. That keeps
 what they are for — proving every screen renders without crashing — while leaving

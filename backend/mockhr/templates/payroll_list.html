@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}経費精算・給与変更一覧 | 社内人事システム{% endblock %}
+{% block body %}
+<nav class="crumbs">ホーム &rsaquo; 給与管理 &rsaquo; <strong>経費精算・給与変更一覧</strong></nav>
+<main>
+  <h2>経費精算・給与変更一覧</h2>
+
+  {% if flash %}
+  <div class="banner banner-ok" data-testid="payroll-list-flash">{{ flash }}</div>
+  {% endif %}
+
+  <div class="panel">
+    <table data-testid="payroll-list">
+      <thead>
+        <tr>
+          <th>管理ID</th><th>社員ID</th><th>氏名</th><th>区分</th>
+          <th class="num">金額</th><th>ステータス</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr data-testid="payroll-row-{{ r.record_id }}">
+          <td data-testid="payroll-row-id-{{ r.record_id }}">{{ r.record_id }}</td>
+          <td>{{ r.employee_id or '—' }}</td>
+          <td>{{ r.employee_name or '—' }}</td>
+          <td>{{ r.category or '—' }}</td>
+          <td class="num">{% if r.amount is not none %}{{ "{:,}".format(r.amount|int) }} 円{% else %}—{% endif %}</td>
+          <td data-testid="payroll-row-status-{{ r.record_id }}">
+            <span class="status {{ status_class(r.status.value) }}">{{ r.status.value }}</span>
+          </td>
+          <td>
+            <a href="{{ base }}/payroll-items/{{ r.record_id }}"
+               data-testid="payroll-open-{{ r.record_id }}">詳細</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="note" data-testid="payroll-record-count">{{ records | length }} 件</p>
+  </div>
+</main>
+{% endblock %}
