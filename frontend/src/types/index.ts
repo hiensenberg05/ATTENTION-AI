@@ -266,7 +266,9 @@ export interface QueueTask {
   stage: QueueStage
   decision: DecisionType | null
   confidence: number | null
-  submitted_at: string
+  /** When the JOB was created. Null when nothing has run this record - the mock
+   *  HR system carries no submission timestamp, so inventing one would be a lie. */
+  submitted_at: string | null
   detail_line: string
   duration_label: string
   /** Measured execution time, or null if this record has not been executed. */

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { Dot, cx } from '@/components/ui'
 import { useAsync } from '@/hooks/useAsync'
-import { fetchDashboard } from '@/services/api'
+import { fetchDashboard, fetchWorkflows } from '@/services/api'
 
 const NAV = [
   { to: '/', label: 'Overview & Metrics', icon: LayoutGrid, end: true },
@@ -28,9 +28,12 @@ const NAV = [
   { to: '/history', label: 'Audit & Run History', icon: FileClock },
 ] as const
 
-const WORKFLOW_LINKS = [
-  { name: 'Leave Approval', status: 'Active', tone: 'ok' as const },
-  { name: 'Payroll Confirmation', status: 'Declared', tone: 'warn' as const },
+/**
+ * Workflows the platform does NOT implement. Everything it does implement is read
+ * from the backend below, so this list cannot drift out of date the way a
+ * hardcoded one did.
+ */
+const UNSCOPED_WORKFLOWS = [
   { name: 'Expense Claims', status: 'Not scoped', tone: 'neutral' as const },
 ]
 
@@ -38,7 +41,17 @@ function Sidebar() {
   // Live counters. Before any job has run these are all zero, and the nav simply
   // shows no badges - which is the correct picture of an idle system.
   const { data } = useAsync(fetchDashboard, [])
+  const { data: definitions } = useAsync(fetchWorkflows, [])
   const m = data?.metrics
+
+  const workflowLinks = [
+    ...(definitions ?? []).map((w) => ({
+      name: w.name,
+      status: w.implemented ? 'Active' : 'Declared',
+      tone: (w.implemented ? 'ok' : 'warn') as 'ok' | 'warn' | 'neutral',
+    })),
+    ...UNSCOPED_WORKFLOWS,
+  ]
   const badges: Record<string, number> = {
     queue: m ? m.queued + m.inFlight : 0,
     agent: m ? m.inFlight : 0,
@@ -96,7 +109,7 @@ function Sidebar() {
 
         <p className="label-xs px-2 pb-2 pt-6 text-rail-400">Workflows</p>
         <ul className="space-y-0.5">
-          {WORKFLOW_LINKS.map((w) => (
+          {workflowLinks.map((w) => (
             <li
               key={w.name}
               className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[12.5px]"
@@ -121,7 +134,7 @@ function Sidebar() {
         </div>
         <dl className="mt-2.5 space-y-1.5">
           <div className="flex justify-between text-[11.5px]">
-            <dt className="text-rail-400">Records pending</dt>
+            <dt className="text-rail-400">Actionable records</dt>
             <dd className="tnum font-semibold text-white">{m?.pendingRecords ?? '—'}</dd>
           </div>
           <div className="flex justify-between text-[11.5px]">

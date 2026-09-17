@@ -430,7 +430,7 @@ export default function TaskQueue() {
                         {task.detail_line}
                       </span>
                       <span className="block text-[11px] text-ink-400">
-                        {relativeTime(task.submitted_at)}
+                        {task.submitted_at ? relativeTime(task.submitted_at) : 'not yet run'}
                       </span>
                     </Td>
                     <Td>

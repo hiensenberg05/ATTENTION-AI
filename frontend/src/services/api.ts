@@ -246,7 +246,7 @@ export async function fetchQueue(): Promise<QueueTask[]> {
       stage: job ? STAGE_BY_STATE[job.state] : 'Queued',
       decision: job?.decision?.decision ?? null,
       confidence: job?.decision?.confidence ?? null,
-      submitted_at: job?.created_at ?? new Date().toISOString(),
+      submitted_at: job?.created_at ?? null,
       detail_line: detailLine(record),
       duration_label: durationLabel(job),
       duration_seconds: job?.execution?.duration_seconds ?? null,
