@@ -11,11 +11,16 @@ Run from inside `backend/`:
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 import metrics as prototype_metrics
 import orchestrator
@@ -351,3 +356,25 @@ def reset_demo() -> dict[str, object]:
         "jobs": len(orchestrator.jobs.all()),
         **counts,
     }
+
+
+# Serve the built operator console from this same origin when a production build
+# exists - the Docker image builds one. Local development uses Vite's dev server
+# on :5173 instead (it proxies /api here), and without a build none of this runs.
+# Registered last, so every API, mock-HR and docs route above wins over the SPA
+# fallback; unknown /api and /mock-hr paths still 404 rather than return HTML.
+FRONTEND_DIST = Path(
+    os.environ.get("FRONTEND_DIST", Path(__file__).resolve().parents[1] / "frontend" / "dist")
+).resolve()
+
+if (FRONTEND_DIST / "index.html").is_file():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="console-assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def operator_console(full_path: str) -> FileResponse:
+        if full_path.startswith(("api/", "mock-hr/")):
+            raise HTTPException(status_code=404)
+        candidate = (FRONTEND_DIST / full_path).resolve()
+        if full_path and candidate.is_relative_to(FRONTEND_DIST) and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(FRONTEND_DIST / "index.html")

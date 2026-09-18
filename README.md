@@ -128,13 +128,54 @@ All Phase 2 outputs are written to `phase2/results/`. The main files are:
 
 The committed deliverable is also available at `deliverables/segments.jsonl`.
 
+## Deliverables and Results
+
+The `deliverables/` folder contains the submission-facing files:
+
+```text
+deliverables/
+├── segments.jsonl                 Step 1 Dataset B segmentation output
+├── Attention AI - Final Report.pdf Final report
+└── WORKLOG.md                     Development work log
+```
+
+The complete analysis results remain organized by phase:
+
+```text
+phase1/results/                    Dataset A experiments and validation metrics
+phase2/results/
+├── phase2_summary.md              Analysis summary and limitations
+├── segments.jsonl                 Dataset B segmentation result
+├── segment_features.csv           Per-segment features and audit data
+├── process_summary.csv            Process frequency and time summary
+├── variant_analysis.csv           Process-variant analysis
+├── automation_candidates.csv      Prioritized automation candidates
+├── representative_segments.csv   Representative examples for review
+├── dashboard_data.json            Dashboard-ready metrics
+└── plots/                         Generated charts and visual evidence
+```
+
+To regenerate these results, run the Phase 0, Phase 1, and Phase 2 commands above in
+order. The Phase 2 result files are written to `phase2/results/`, while the required
+submission segmentation file is available at `deliverables/segments.jsonl`.
+
 ## Run the Backend Prototype
 
-Start from the repository root with the virtual environment active:
+Start from the repository root. Activate the virtual environment, then change into
+the backend directory and start the API:
 
 ```powershell
+\.\venv\Scripts\Activate.ps1
 cd backend
-python -m uvicorn main:app --reload --port 8000
+uvicorn main:app --reload
+```
+
+On macOS or Linux:
+
+```bash
+source ./venv/bin/activate
+cd backend
+uvicorn main:app --reload
 ```
 
 Useful URLs:
@@ -148,9 +189,20 @@ The backend supports Leave Approval and Payroll Confirmation. Set `PLAYWRIGHT_HE
 
 ## Run the Frontend Console
 
-Keep the backend running and use a second terminal:
+Keep the backend terminal running. Open a second terminal, activate the same virtual
+environment if needed, then start the frontend from its directory:
 
 ```powershell
+\.\venv\Scripts\Activate.ps1
+cd frontend
+npm install
+npm run dev
+```
+
+On macOS or Linux, use a second terminal:
+
+```bash
+source ./venv/bin/activate
 cd frontend
 npm install
 npm run dev
@@ -190,3 +242,4 @@ Open http://127.0.0.1:8000. Docker is not required for the local development wor
 - Dataset B has no ground truth; its counts and process boundaries are analytical estimates and should be reviewed with the evidence tables and screenshots.
 - The mock HR application and demo records are not production systems or production approval policies.
 - Never commit `.env`, API keys, or other secrets.
+DELEVIRABLES FOLDER CONTAINS RESULT
