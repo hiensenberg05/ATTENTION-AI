@@ -1,6 +1,73 @@
-﻿# Phase 0 Work Log
+# Work Log
 
-## 2026-09-14
+Deliverable 4. What I was thinking each day, what I tried, and what did not work.
+
+The work ran **five days, 14–18 September 2026**, against a seven-day budget. It
+is presented as the five days it took rather than padded to seven; where a day
+was unusually long or short, the entries say so.
+
+Each day below opens with what I was trying to achieve and why, then the entries
+written as the work happened. Nothing has been rewritten after the fact — entries
+from days that turned out to be wrong are left as they were written, because a
+log that only records the decisions that survived is not a log.
+
+## How the days were allocated
+
+| Day | Date | Focus | Why this, then |
+|---|---|---|---|
+| 1 | 14 Sep | Phase 0 data foundation, first Phase 1 baselines | No modelling until the data was understood. Chunk boundaries are not process boundaries, line order is not timestamp order, and screenshot manifests overstate what exists — all three would have silently corrupted any segmenter built on top of them. |
+| 2 | 15 Sep | Boundary diagnosis, candidate generation, signal coverage | Before tuning a model, find out which boundaries emit *no signal at all*. That number caps what any scorer can reach and decided how much further tuning was worth. |
+| 3 | 16 Sep | Handoff audit, Phase 1F rewrite, variants 1F.1–1F.5, Phase 2 | The longest day, and the one that changed the project. An audit found Phase 1F had never actually been run, so it was rewritten and run for real; four variants followed, then the frozen scorer was applied to Dataset B. |
+| 4 | 17 Sep | The Step 3 prototype, both workflows, metrics | The whole prototype in one day, which the evidence made possible: Phase 2 had already specified it, so this was building to a spec rather than deciding what to build. |
+| 5 | 18 Sep | Repo consolidation, deliverables, honesty passes | Making the work reviewable: one environment, two phase folders, the deliverables collected, and every remaining hardcoded figure on screen either derived or deleted. |
+
+**Why Phase 1 took two and a half days and Phase 3 took one.** Phase 1 is where the
+uncertainty lived — there was no way to know in advance which signals separate
+work units, and the answer turned out to be "not cleanly, and here is how much".
+Phase 3 was comparatively mechanical because Phase 2 had already produced a
+17-point specification grounded in observed screens. Time went where the unknowns
+were, not where the code volume was.
+
+## What did not work
+
+The brief asks for this explicitly, so it is indexed rather than buried:
+
+| What | Day | Outcome |
+|---|---|---|
+| Phase 1F was written but never run | 3 | An audit caught it. Its output directory held a README and an empty file. Rewritten and run for real. |
+| Phase 1F.2 — relaxed non-maximum suppression | 3 | **Regression.** Held-out F1 fell from 0.368 to 0.267 at exact match. Documented and stopped rather than tuned until it looked better. |
+| Phase 1G — LLM semantic boundary features | 3 | **Dropped.** Attempted and abandoned; the cost and opacity were not justified by what it offered over the deterministic scorer. |
+| Phase 1F.5 is worse than 1F.4 at exact match | 3 | Kept anyway, on tolerant matching (0.583 vs 0.536 at tolerance 2). The trade-off is stated rather than hidden. |
+| "Auto-approval is broken" | 4 | Not a bug. Queue ordering — the observed Dataset B records all legitimately escalate and sat at the top. |
+| Approvals blamed on architecture | 4 | I claimed a structural 10–12s cost. Profiling disproved it: the cause was Groq rate-limiting. Corrected. |
+| Metric 5 was vacuous | 4 | Zero policy bypasses *and* zero guard interventions meant the guard had never been exercised. Replaced with a live adversarial probe. |
+| Six hardcoded figures in the UI | 4–5 | Two were factually wrong. One fabricated step list was deleted rather than fixed. |
+
+## How generative AI was used
+
+Required by the brief. AI was the working method throughout, not an add-on, so it
+is recorded inline in the entries as well as summarised here.
+
+| Used for | Detail |
+|---|---|
+| Schema inspection and EDA design | Day 1 — reading the raw log format and designing the profiling passes |
+| Implementation | Throughout — the Phase 0 pipeline, the Phase 1 variants, the Step 3 backend and frontend |
+| Japanese screen text | Reading `申請中`, `研修費`, `登録確定` and the rest of the UI vocabulary from screenshots and extracted text |
+| Analysis and review | Diagnosing the Phase 1F handoff, the hardcoded-value audit, the metrics design |
+| Codex → Claude handoff | A mid-project handoff between assistants, which is what produced `PHASE_HANDOFF_AUDIT.md` |
+
+**Where AI was deliberately not used:** no LLM is involved in segmentation. Phase
+1G tried it and was dropped. Phase 1 and Phase 2 are a logistic regression plus
+deterministic rules, so their outputs are reproducible and inspectable. The only
+LLM in the shipped system is the Step 3 decision layer, and a deterministic policy
+engine can overrule it but it can never overrule the policy engine.
+
+---
+
+## Day 1 — 14 September 2026
+*Understand the data before modelling anything*
+
+### Phase 0 — data foundation
 
 - Investigated: README, DATA_SCHEMA, raw events/manifests from both datasets, and Dataset A GT streams/manifests.
 - Findings: session/chunk boundaries differ from process boundaries; line order is not always timestamp order; extracted text is sparse; screenshot manifests substantially overstate present files.
@@ -9,39 +76,46 @@
 - AI assistance used: assisted schema inspection, EDA design, and implementation.
 - Next step: run the pipeline, inspect outputs/tests, document Phase 0 results. No segmentation work has been started.
 
-## 2026-09-14 — Initial Phase 1
+### Initial Phase 1
 
 - Investigated: Dataset A GT-aligned adjacent events, gaps, application/window changes, event taxonomy, continuations and splits.
 - Implemented: diagnostic gap and gap-or-app-change baselines only; no segmentation, clustering, classifier, or Dataset B labeling.
 - Next step: await approval before a segmentation-design stage.
 
+### Phase 1A
 
-## 2026-09-14 — Phase 1A
 - Investigated: 10/20/50-event pre/post behavioral windows at GT execution changes against sampled within-execution transitions.
 - Implemented: context statistics and diagnostic comparisons only; no segmentation or Dataset B tuning.
 - Next step: await approval for segmentation design.
 
+## Day 2 — 15 September 2026
+*Learn what a boundary actually looks like*
 
-## 2026-09-15 — Phase 1B.1
+### Phase 1B.1
+
 - Diagnosed existing held-out model only: imbalance, probability overlap, threshold sweep, coefficients, and error examples.
 - No retraining, Dataset B use, clustering, or pipeline redesign performed.
 
+### Phase 1C
 
-## 2026-09-15 — Phase 1C
 - Built Dataset A-only weak-signal candidate generation and compact contextual representation.
 - No final segmentation or Dataset B work.
 
+### Phase 1D
 
-## 2026-09-15 — Phase 1D
 - Diagnosed all Dataset A GT boundary signal coverage; no candidate-generator change or ranking implemented.
 
+### Phase 1F
 
-## 2026-09-15 — Phase 1F
 - Built the final Dataset A-only high-recall candidate plus contextual scorer segmentation pipeline.
 - Used no Dataset B, process clustering, LLM, or Step 3 work; model features exclude process identity/code/variant and GT columns.
 - Threshold is chosen with grouped training-only out-of-fold calibration; pending final held-out results.
 
-## 2026-09-16 — Handoff audit + Phase 1F rewrite and first real run
+## Day 3 — 16 September 2026
+*Audit, rewrite, and take segmentation as far as it goes*
+
+### Handoff audit + Phase 1F rewrite and first real run
+
 - Handoff from Codex to Claude. Audited Phase 1E and Phase 1F before touching any code (`PHASE_HANDOFF_AUDIT.md`): Phase 1E was correctly implemented and diagnostic-only, verified against its own CSV output. Phase 1F code existed and was methodologically sound on static read (no GT-identity features, correct held-out/OOF protocol) but had **never been executed** — zero output files anywhere in the repo — and neither 1E nor 1F had ever been committed to git (history stopped at Phase 1D).
 - Verdict was `PHASE 1F PARTIALLY COMPLETE`. User directed a rewrite rather than patching.
 - Rewrote `src/phase1f_segmentation.py`. Found and fixed a real bug in the original draft's non-maximum suppression: it compared candidate `event_index` across *different sessions*, so boundaries in unrelated sessions could spuriously suppress each other (session-local event indices collide by coincidence). NMS is now grouped by `session_id`.
@@ -50,28 +124,33 @@
 - First real Phase 1F results: candidate pool 108,913 (67% of events), 100% candidate-stage recall. Threshold 0.83 from training-only OOF search. Held-out: precision 27.3%, recall 56.5%, F1 0.368. All-Dataset-A: precision 26.5%, recall 60.8%, F1 0.369. Roughly 2x over-segmentation relative to GT boundary counts; ~44% of true boundaries still missed on held-out.
 - No Dataset B work, no Step 3 work. Whether these numbers are "good enough" to proceed is an open decision, not yet made.
 
-## 2026-09-16 — Phase 1F.1 error diagnosis (audit only)
+### Phase 1F.1 error diagnosis (audit only)
+
 - Diagnosed the real Phase 1F boundary_results.csv: TP/FP/FN score distributions, threshold sensitivity, and inspected representative examples with local context (`phase1f1_error_diagnosis/README.md`). No pipeline, feature, or scoring change; no LLM; no Dataset B.
 - Key findings: errors are not concentrated near threshold 0.83 (FP median score 0.964 > TP median 0.936). ~61% of missed boundaries (330/542) already scored above threshold but were discarded by 3-event NMS due to bursts of near-identical high-scoring candidates clustered around one real switch — a post-processing issue, not a modeling one. ~34% of high-confidence false positives are far from any true boundary; inspected examples were GT-unassigned background/tooling activity (agent UI, setup scripts, session teardown) that behaviorally mimics a real switch. 98.3% of all GT boundaries occur with no visible app/window change at all, confirming Phase 1D's finding and explaining why TP/FP scores overlap so heavily — the model has almost nothing but fine-grained noisy signals to work with for the vast majority of real switches.
 - Conclusion: most remaining error is structural (post-processing/NMS, and a GT/label-scope gap for background activity), not primarily semantic ambiguity. Only the same-app/same-window content-invisible switches are genuinely LLM-shaped, and even there usefulness is capped by ~4% extracted_text coverage.
 
-## 2026-09-16 — Phase 1F.2: cluster-and-pick post-processing + tooling filter (regression, documented and stopped)
+### Phase 1F.2: cluster-and-pick post-processing + tooling filter (regression, documented and stopped)
+
 - Implemented `src/phase1f2_segmentation.py`, reusing Phase 1F's feature engineering, candidate generation, and model training unchanged (imported, not reimplemented; verified scores are bit-for-bit identical between the two runs). Replaced greedy 3-event NMS with transitive chain clustering + highest-score-per-cluster selection, and added a conservative GT-free tooling/background filter (SYSTEM-lifecycle proximity + known agent/OS-tool app names).
 - Result: a real regression, not an improvement. Held-out F1 dropped 0.368→0.267 (precision 27.3%→23.1%, recall 56.5%→31.6%); training OOF F1 dropped 0.359→0.251, so it's worse even in-sample. Isolated the cause by re-running both post-processing methods at the same fixed threshold (0.83): the clustering algorithm alone explains almost the entire regression, not the recalibrated threshold or the tooling filter (both had small effects).
 - Root cause, directly diagnosed: among held-out clusters that contain a true boundary, "pick the highest score" selected the true boundary only 40% of the time — because FP scores are not systematically lower than TP scores within local bursts (matches the Phase 1F.1 finding that FP median score 0.964 > TP median 0.936). Chain clustering fixed the structural burst-fragmentation problem Phase 1F.1 identified, but the representative-selection rule (argmax score) is miscalibrated for this scorer. Only 1 of the 330 previously NMS-suppressed boundaries got recovered as a correct TP.
 - Tooling filter alone is safe (flags 1.3% of candidates, costs only 11/1,382 = 0.8% of true boundaries) but a small effect relative to the clustering regression.
 - No features/model/LLM changed; Dataset B untouched. Reported honestly and stopped per instructions — no further implementation attempted this session. Full report: `phase1f2_segmentation/README.md`.
 
-## 2026-09-16 — Inspected actual extracted_text/clipboard/screenshot availability before proposing content features
+### Inspected actual extracted_text/clipboard/screenshot availability before proposing content features
+
 - Read-only investigation (no script committed) before running another experiment, per user's request. Findings: extracted_text coverage is higher near real boundaries than the flat 4.48% average (14.4% within +/-2 events; 33.1% of true boundaries have text on both sides of the +/-20 event window). Content, when present, is genuinely case-identifying (real samples contain literal case IDs with status, e.g. "INV-071644-001: approved"), not generic noise. But a regex case-ID diff test showed only 31% of boundaries with an extractable ID on both sides show a DIFFERENT id (69% show the SAME id — a process-type switch on the same case, not a new case) — so the signal is real but partial. clipboard_text is 0% populated in all of Dataset A. Screenshots: only 2,591 real files on disk vs 34,580 referenced (~7.5%) — vision-based enrichment would face similar scarcity.
 
-## 2026-09-16 — Phase 1F.3 and 1F.4: testing the two approaches discussed
+### Phase 1F.3 and 1F.4: testing the two approaches discussed
+
 - **Phase 1F.3** (`src/phase1f3_segmentation.py`): same as 1F.2 (clustering + tooling filter) but the cluster representative is the earliest event instead of the highest-scoring one, directly testing the 1F.2 diagnosis. Result: real improvement over 1F.2 (held-out F1 0.267->0.322, NMS-suppressed-FN recovery 1/330->116/330) but still below the Phase 1F baseline (0.368) — old NMS's tendency to keep multiple candidates per burst still nets more exact-match recall than one disciplined pick per cluster.
 - **Phase 1F.4** (`src/phase1f4_segmentation.py`): Phase 1F's original NMS unchanged, added 4 case-ID content features (`pre/post_has_case_id`, `case_id_changed`, `case_id_persists`) derived from the extracted_text/clipboard_text investigation above. Result: small, real, consistent improvement — held-out F1 0.368->0.376, training OOF F1 0.359->0.362 (same direction on both, not just held-out noise). Modest because the tight/informative content signal (case_id_changed) only fires on 9.3% of candidates.
 - Best of the four Phase 1F variants tried so far: **Phase 1F.4 (F1 0.376 held-out)**, narrowly ahead of the original Phase 1F baseline (0.368); 1F.2 and 1F.3 (clustering-based post-processing) both still trail the baseline. Combining 1F.3's earliest-in-cluster fix with 1F.4's content features was not tried this round.
 - No Dataset B, no LLM. Full reports: `phase1f3_segmentation/README.md`, `phase1f4_segmentation/README.md`.
 
-## 2026-09-16 — Phase 1F.5: combining 1F.3 + 1F.4, plus tolerance-based evaluation
+### Phase 1F.5: combining 1F.3 + 1F.4, plus tolerance-based evaluation
+
 - `src/phase1f5_segmentation.py`: Phase 1F candidate generation/features + Phase 1F.4's case-ID content features (unchanged, imported) scored by an identically-trained LogisticRegression, selected by Phase 1F.3's tooling filter + clustering + earliest-event representative (unchanged, imported). No new features, no LLM, no Dataset B.
 - Added `src/tolerance_metrics.py`: reusable, read-only post-hoc evaluator that matches predicted-to-true boundaries within +/-k events using one-to-one greedy nearest-distance matching (so a burst of predictions can't multi-count against one true boundary), applied to all five variants' saved boundary_results.csv at tolerance 0 (exact, sanity-checks against each variant's own saved stats), 2, and 3.
 - Exact-match result: 1F.5 held-out F1 0.332, NMS-suppressed-FN recovery 128/330 (38.8%) -- beats 1F.3 (0.322, 116/330) at every number, but still trails 1F.4 alone (0.376) and the 1F baseline (0.368) on exact-match recall.
@@ -80,13 +159,15 @@
 - All five variants (1F, 1F.2, 1F.3, 1F.4, 1F.5) remain separate, independently reproducible, each with its own folder/README/boundary_results.csv. Full report: `phase1f5_segmentation/README.md`, comparison table `phase1f5_segmentation/tolerance_comparison.csv`.
 - Stopped per instructions -- no Dataset B, no LLM work this session.
 
-## 2026-09-16 — Phase 1G attempted and dropped: LLM semantic boundary features
+### Phase 1G attempted and dropped: LLM semantic boundary features
+
 - Attempted an isolated experiment adding LLM-derived semantic features (case ID/entity/status/business-action/workflow-stage change judgments) on top of Phase 1F.5, unchanged otherwise, using Groq.
 - Hit two real infra issues, both handled transparently rather than worked around silently: (1) `llama-3.1-70b-versatile` is decommissioned on Groq (verified live) and no Llama chat model of any version is currently available there -- asked the user, who approved `openai/gpt-oss-120b` as a substitute; (2) forced JSON mode occasionally made the model spell out numbers (e.g. `"0. nine"`), rejected by Groq's validator -- fixed by dropping forced JSON mode and validating client-side. Also found the account's 8,000 tokens/minute cap only sustains ~2.2 calls/minute at the required ~20-event context size, so the planned 250+250 candidate sample was cut to 60+60 to keep runtime bounded (~55 min instead of ~4 hours).
 - The batch run was in progress (~10-15/120 candidates completed) when the user decided to drop this approach for now ("will think better later") rather than let it finish. Stopped the running process and removed all Phase 1G code, outputs, and LLM cache (`src/phase1g_llm_features.py`, `phase1g_segmentation/`) -- nothing was committed, so nothing lost from history. No comparison result was ever produced; Phase 1F.5 remains the current segmentation method.
 - Takeaway for later: if revisited, the model-availability and rate-limit constraints found here (Groq's Llama lineup is gone, gpt-oss-120b's TPM cap forces small sample sizes at this context length) should be checked again first, since they may have changed, and they materially shape how large/fast such an experiment can be.
 
-## 2026-09-16 — Phase 2: Dataset B process recovery and automation opportunity analysis
+### Phase 2: Dataset B process recovery and automation opportunity analysis
+
 - Moved from Step 1 (segmentation) to Step 2 (Dataset B analysis). Phase 1 is now frozen; Phase 1F.5 was not modified, retrained, or re-tuned, and Dataset A GT was never read for or applied to Dataset B.
 - `src/phase2_dataset_b_segmentation.py`: since `phase1f5_segmentation.py` never persisted its fitted model/threshold to disk, reproduced the exact same deterministic fit procedure on Dataset A only (same features/candidates/held-out split/GroupKFold OOF threshold search/hyperparameters), then verified the reproduction against Phase 1F.5's own recorded numbers (threshold 0.88, training OOF F1 0.3404874499818116) before applying the frozen model+threshold+clustering to Dataset B. Verification passed exactly. Dataset B: 226 segments recovered from 20,477 events / 15 sessions (16,955 candidates, 211 predicted boundaries).
 - `src/phase2_process_analysis.py` + `src/phase2_process_summary.py`: built the full per-segment audit table (`segment_features.csv`), then grouped segments into 21 process families via a transparent, deterministic, rule-based method (no ML clustering, no embeddings, no LLM) -- primary key = dominant app or browser host:port+route, sub-variants via single-linkage cosine similarity (threshold 0.80) on event-type-rate vectors. Found and fixed a real bug along the way: the first pass grouped by the fine sub-variant ID instead of the process family, making "number of meaningful variants" trivially always 1 -- refactored to group by family (`primary_context`) with sub-variants tracked separately in `variant_analysis.csv`.
@@ -94,24 +175,31 @@
 - **Important data-quality finding, reported prominently in `phase2_summary.md` Phase 2H rather than glossed over**: only 30.5% of recovered segments are "clean" (single app, single browser route); 45.6% touch >1 browser route and 61.5% touch >1 application within one segment. Concretely confirmed via two inspected examples (one segment blends real payroll text at port 5132 with inventory-adjustment text at port 5134 after an undetected mid-segment navigation; another spans HR/Word/Finance/Notepad content in one 74s segment) and quantitatively via distinct case-ID counts inside single segments (one "onboarding" segment contains 12 distinct sequential case IDs, i.e. is very likely several real executions merged). Root cause is the same Phase 1F.1-diagnosed limitation (real Dataset A boundaries rarely have visible app/window signals, so the frozen scorer under-segments these) showing up more often on Dataset B's different app mix -- expected per the assignment's own warning, not a new bug, but it means segment counts likely undercount true process executions and segment durations likely overcount true per-execution time for the longer segments.
 - Outputs: `phase2_dataset_b/` containing `segments.jsonl`, `segment_features.csv`, `process_groups.csv`, `process_summary.csv`, `variant_analysis.csv`, `automation_candidates.csv`, `representative_segments.csv`, `phase2_summary.md`, `README.md`, and 5 plots. No Step 3 work, no automation winner declared, per instructions.
 
-## 2026-09-16 — Phase 2 visual audit: screenshots + events for 13 representative segments
+### Phase 2 visual audit: screenshots + events for 13 representative segments
+
 - Before any Step 3 decision, manually inspected actual screenshots (not just OCR'd text) plus surrounding events for 13 segments across the three highest-volume candidates (5132 payroll-items x5, 5132 onboarding x5, 5132 leave-applications x3), spanning each family's full duration range. No Phase 1F.5 change, no OCR/LLM pipeline -- direct visual inspection. Dataset B has much better screenshot coverage than Dataset A: 3,860 real `.jpg` files on disk vs 4,759 referenced (~81%).
 - Confirmed two genuinely clean, single-record executions with screenshots: a payroll expense confirmation (`NEELA9BAF::190250::seg002`, 11.7s) and a leave-application approval (`NEELA9BAF::180923::seg013`, 4.4s) -- both "open one pending record -> check against a visible policy note -> click one decision button" patterns, the strongest automation evidence found in the whole Phase 2 analysis.
 - Directly confirmed (not just inferred from duration statistics) that most longer segments are merged multi-case work sessions -- up to ~15 distinct real business actions found inside one 359-second segment (6 payments + 5 expense settlements + 2 approvals + 2 onboarding verifications), which also crosses a chunk boundary.
 - **New finding beyond `phase2_summary.md` §7**: caught a screenshot showing a Finance payment-processing screen at a URL literally reading `.../5133/#/onboarding`. Verified directly against raw event data (not inferred) -- the hash-route slug is not a reliable business-function label outside of what's been directly checked. Followed up and confirmed all 6 segments grouped as `5133_onboarding` are actually Finance/Logistics/IT work, not HR onboarding -- that specific process-type row's description is wrong and should be treated as unverified until re-checked. The three families the user asked about (all port 5132) held up under inspection; this is a bonus catch, not a mark against them.
 - Output: `phase2_dataset_b/visual_audit.md`. No Step 3 winner selected.
 
-## 2026-09-16 — Step 3 prototype specification (evidence-based, no winner chosen)
+### Step 3 prototype specification (evidence-based, no winner chosen)
+
 - Built a 17-point specification template (process name, input, trigger, exact action sequence, fields read/entered, policy step, output, apps/routes, manual baseline metrics, what's automatable, what stays human-in-the-loop, risks, success criteria, before/after metrics, evidence strength) and filled it for the two visually-confirmed clean workflows from the audit above: payroll expense confirmation and leave-application approval.
 - Reconstructed the exact event-by-event action sequence for both (not inferred) by re-reading the raw Dataset B event stream for those two exact segments. Found a concrete data trap worth flagging: the regex-matched case IDs attached to the payroll segment (`INV-2026-79xx`) are list-view noise from a dashboard table, not the real record processed (`P1-07046967-001`, visible only in the detail-panel screenshot) -- automation keyed off case-ID extraction alone would target the wrong identifier scheme.
 - Compared both workflows side by side without picking a winner, per instructions: leave-approval's clean instance is faster/simpler (single system, no tab-hopping) with broader confirmed request-type variety; payroll-confirmation's family is larger by both execution count and total observed time but its policy logic is less explicit on-screen. Both share the same real gaps -- reject/hold path never observed for either, sub-25% case-ID coverage family-wide.
 - Output: `phase2_dataset_b/step3_prototype_spec.md`.
 
-## 2026-09-16 — Phase 2 metrics dashboard (Artifact)
+### Phase 2 metrics dashboard (Artifact)
+
 - Built and published an interactive HTML dashboard (dataviz + artifact-design skills) summarizing Phase 2's numbers on request: KPI strip, process frequency/time bar charts (colored by confidence tier), duration/interaction-burden histograms, confidence-level breakdown, and a sortable automation-candidate scorecard (five qualitative tiers, no combined score). All data pulled directly from `process_summary.csv`/`automation_candidates.csv`/`segment_features.csv` -- nothing recomputed or invented. Footer repeats the 30.5%-clean-segments caveat so the numbers aren't read as more precise than they are.
 - Published at https://claude.ai/artifact/6QGeituC6pcPqYf19x2yLY ("Dataset B Process Metrics").
 
-## 2026-09-17 — Step 3 begins: backend foundation for the Back-Office Automation Agent
+## Day 4 — 17 September 2026
+*Build the prototype end to end*
+
+### Step 3 begins: backend foundation for the Back-Office Automation Agent
+
 - Started Step 3 (build the automation prototype). New top-level `backend/` directory with its own venv, fully separate from the frozen Phase 1/2 analysis code, which was not touched.
 - Scope was deliberately limited to the data foundation: Pydantic schemas, state machine definitions, the Leave Approval workflow definition, demo records and the explicit prototype policy. No agent, no LLM, no PydanticAI, no Playwright, no React, no mock HR app - all deferred to later stages, and none of their dependencies are in requirements.txt yet.
 - **The honesty boundary is enforced in the schema, not just in prose.** Three provenance values instead of the two originally sketched: `dataset_b_observed` (exactly one record, P2-07048822-006, whose full detail panel AND the 承認 action on it were screenshot-confirmed), `dataset_b_list_observed` (six records whose rows were visible in a list view but whose detail panel was never opened, so `prior_approval_required` is null = UNKNOWN, not guessed), and `synthetic_demo` (ten records, all `DEMO-`-prefixed so they can never be mistaken for observed ids). Re-verified the grounded record field-for-field against the original screenshot rather than trusting the earlier write-up.
@@ -121,7 +209,8 @@
 - Verified rather than assumed: installed the deps in an isolated venv and ran a 25-assertion check covering model validation, provenance claims, the grounded record's fields, state-machine legality, the REVIEW/human-review invariant, the workflow definition, the policy, and every endpoint via TestClient - then booted uvicorn and confirmed real HTTP 200s. All passed.
 - Files: `backend/{main.py,repository.py,requirements.txt,README.md}`, `backend/models/{common,leave,payroll,agent,execution,job}.py`, `backend/state/machine.py`, `backend/workflows/{base,leave_approval}.py`, `backend/data/{leave_requests,payroll_items,policies}.json`.
 
-## 2026-09-17 — Step 3 frontend: operations console (React + Vite + Tailwind)
+### Step 3 frontend: operations console (React + Vite + Tailwind)
+
 - Built `frontend/` as a new top-level directory (React 19, Vite 8, TypeScript, Tailwind v4, react-router, lucide). Phase 1/2 analysis code and the backend foundation were not modified.
 - Six screens implemented against the supplied wireframes: Overview & Metrics, Workflow Task Queue, Agent Policy & Decision, Step Automation Execution, Human Review Queue, Audit & Run History. Navigation works throughout, and clicking a task routes to wherever it currently sits in the pipeline (evaluating → agent view, pending sign-off → review, executing → execution).
 - Reusable component layers rather than per-screen markup: `components/ui` (Card/Badge/Button/StatCard/Table/Tabs/loading-empty-error states), `components/charts` (hand-rolled SVG donut/sparkline/stacked-bars/ring — no charting dependency), `components/domain` (PipelineStrip, PolicyGateCard, DecisionBadge, ProvenanceBadge, ConfidenceMeter, Timeline), `components/layout/AppShell`.
@@ -132,7 +221,8 @@
 - Verified rather than assumed. No browser/screenshot tool was available in this environment, so I installed vitest + jsdom + testing-library and wrote 17 render tests that mount all six screens, wait for data, and assert the populated state plus the data-integrity invariants. **This found two real bugs**: a Rules-of-Hooks violation in AuditHistory (a `useMemo` after an early return — would have crashed the page the moment data loaded) and a queue footer reading "Showing 0 of 0 tasks" during loading. Both fixed. Final state: typecheck clean, production build clean, 17/17 tests passing, dev server serving 200 on all six routes.
 - Not visually inspected — I could not render the UI as an image in this environment, so the pixel-level match to the wireframes is unconfirmed and worth a human look.
 
-## 2026-09-17 — Step 3 complete: agent decision layer, mock HR app, Playwright executor, verification, end-to-end
+### Step 3 complete: agent decision layer, mock HR app, Playwright executor, verification, end-to-end
+
 - Built items 6-10 of the Step 3 plan on top of the existing backend and frontend. Phase 1/2 analysis code untouched; no second backend; the frontend was connected, not redesigned.
 - **Agent decision layer** (`backend/agent/`). PydanticAI 2.44 + Groq, model `openai/gpt-oss-20b`, key read from `GROQ_API_KEY` via the repo-root `.env` — never hardcoded, never logged, never returned by an endpoint. The layer is three modules in sequence: `policy_engine.py` evaluates the gates deterministically and produces the `PolicyCheck[]`; `decision_agent.py` asks the model for a decision, a justification and a confidence; `guards.py` merges the two.
 - **The model may escalate; it may never de-escalate.** `guards.enforce` takes the more conservative of the model's draft and the deterministic evaluation, then applies hard constraints the model cannot argue past (auto-rejection disabled ⇒ REJECT becomes REVIEW; an APPROVE below the policy's confidence floor becomes REVIEW; a REVIEW always carries a human-review flag and a stated ambiguity). The `policy_checks`, `policy_version` and `decided_at` on every decision are always Python's — **the model does not get to author the audit trail**, and it is given a deliberately narrower output schema (`LlmDecisionDraft`) that has no field for them. It also has no tools, so it cannot act on anything.
@@ -150,7 +240,8 @@
 - Files added: `backend/agent/{__init__,policy_engine,schemas,decision_agent,guards}.py`, `backend/execution/{__init__,playwright_executor,verification,runner}.py`, `backend/mockhr/{__init__,router,store}.py` + templates, `backend/orchestrator.py`, `backend/tests/{test_policy_and_guards,test_pipeline}.py`, `.env.example`. Modified: `backend/{main.py,requirements.txt,README.md}`, `backend/models/{agent,job}.py`, `backend/workflows/leave_approval.py`, `frontend/src/services/api.ts`, `frontend/src/types/index.ts`, `frontend/src/components/layout/AppShell.tsx`, four page components, `frontend/README.md`.
 - Still not visually inspected: no browser/screenshot tool was available here, so the console's pixel-level appearance remains unconfirmed and is worth a human look.
 
-## 2026-09-17 — Queue UX fix: auto-approval was working but invisible
+### Queue UX fix: auto-approval was working but invisible
+
 - Reported symptom: "is auto-approving working?" after seven runs in a row all came back REVIEW. It was working; the problem was that the queue's seed order puts the seven observed `P2-*` records first, and **every one of them legitimately escalates** (their detail panels were never opened, so the prior-approval field is unknown). Only 4 of 17 records are auto-approvable (`DEMO-LV-001..004`), and none of them are near the top. Clicking from the top makes a correctly-working system look broken.
 - Chose to expose the split rather than hide it, since the 4/13 ratio *is* the interesting finding: wired the previously-dead "Run policy engine" header button into **Run all pending**, which runs every un-run pending record sequentially with a live `Running n of N…` counter and then reports `4 auto-approved · 12 escalated`, with a line explaining that escalation means a gate could not be evaluated, not that anything failed.
 - **Found a worse bug while in there.** The "Auto-decided share" stat card computed `1 - review/all` over *all seventeen tasks*, so with zero runs it displayed **100% auto-decided** — directly contributing to the confusion. It now divides by tasks that actually reached a decision and shows an em dash when none have. Two neighbouring cards were also fabricating measurements: a hardcoded `seconds(3.8)` "Avg verification" and two invented sparkline series. Replaced with the real mean of measured `duration_seconds` (em dash when nothing has executed) and dropped the fake trend lines. Added `duration_seconds` to `QueueTask` to make that possible.
@@ -158,7 +249,8 @@
 - Consequence: added a **Stop after this one** control so the operator is never trapped waiting on that quota, and stated the expected duration and its cause in the button tooltip instead of letting it look like a hang.
 - Verified: typecheck, lint, production build clean; 17/17 frontend tests; full queue run confirmed live end-to-end (4 auto-approved and executed to 承認済み, 12 escalated, 0 failed). Demo reset afterwards, so the queue is back to 16 pending.
 
-## 2026-09-17 — Workflow B: Payroll Confirmation, and the registry that made it additive
+### Workflow B: Payroll Confirmation, and the registry that made it additive
+
 - Integrated the second workflow from the Phase 2 candidates. Phase 1/2 analysis code untouched; no second backend, no second agent, no redesign of the dashboard.
 - **The point of this phase was to prove the pattern generalises, so the measure of success was how little had to change.** Payroll reuses the state machine, the orchestrator, the guard layer, the decision agent, the executor, verification, the audit trail and every UI screen. What is genuinely workflow-specific turned out to be exactly five things, and they are now named in one place (`workflows/registry.py`): a `WorkflowDefinition`, a policy section, a set of gate functions, a `ScreenSpec`, and a record loader. `orchestrator.py` no longer mentions leave or payroll at all.
 - **Generalised the executor rather than writing a second one.** The browser work for both workflows is identical in shape and differs only in route and `data-testid` names, so those moved into `execution/screens.py` as data. `RecordScreenExecutor` drives either; `LeaveApprovalExecutor` / `PayrollConfirmationExecutor` are thin readable aliases. Same for the mock HR store, which became one generic `RecordStore` parameterised by its status labels.
@@ -174,7 +266,8 @@
 - Files added: `backend/workflows/{payroll_confirmation,registry}.py`, `backend/execution/screens.py`, `backend/mockhr/templates/payroll_{list,detail}.html`, `backend/tests/test_payroll.py`, `frontend/src/lib/record.ts`. Modified: the executor/runner/orchestrator/policy-engine/decision-agent/store/router/main/repository, both policies and payroll demo data, five frontend pages, `services/api.ts`, types, fixtures and tests, and both READMEs.
 - Still not visually inspected: no browser/screenshot tool here, so the console's appearance remains unconfirmed and is worth a human look before submission.
 
-## 2026-09-17 — Phase 3 prototype metrics, computed rather than claimed
+### Phase 3 prototype metrics, computed rather than claimed
+
 - Added the five Phase 3 metrics as a real backend computation (`backend/metrics.py`, `GET /api/metrics`) rendered on the Audit & Run History screen, instead of numbers assembled by hand for the report. Computing them in Python next to the data means the screen and the report cannot quietly disagree.
 - The five: automation success rate (verified / runs that reached the browser), verification (expected vs observed business state), automation vs review rate, execution latency, and safety / policy-bypass rate. Each carries its own `definition` string in the payload, so a figure can never be read without the rule that produced it.
 - **Two things the module deliberately refuses to do.** It returns `null` rather than `0.0` for every rate when nothing has run — "0% success" and "not measured" are different claims and only one is true, and the UI renders "no data" accordingly. And it never subtracts the Dataset B human baseline from prototype latency: the two populations sit in separate keys with the caveat travelling alongside them on screen, because prototype latency is browser time against a local mock while the Dataset B figures are human time in a test environment whose waits were deliberately shortened.
@@ -184,7 +277,8 @@
 - Live sample across both workflows (26 runs, 10 executed): success 100% (10/10 verified), automation 30.8%, review 69.2%, 0 failures, prototype median 1.32s. Per workflow, payroll automates more (40%) than leave (25%) — because the payroll 参照 note was readable on the one record whose detail panel an operator opened, while leave's `prior_approval_obtained` was never visible for any record. That is the ROI finding stated as a measurement: **automatability here is bounded by which fields the operator's screen happened to expose, not by how hard the task is.**
 - Verified: 76 backend tests (up from 64; 12 new metrics tests, most of which assert what the metrics must *refuse* to say), 26 frontend tests (up from 23), typecheck/lint/build clean. Snapshot written to `prototype_metrics.json` for the report.
 
-## 2026-09-17 — Hardcoded-value audit of the frontend, and product rename
+### Hardcoded-value audit of the frontend, and product rename
+
 - Swept every page and component for figures stated from memory rather than read from data. Found six, **two of which had become factually wrong the moment the payroll workflow shipped** — exactly the failure mode this project has been strict about everywhere else, hiding in the UI layer where it is hardest to notice.
 - `Dashboard` claimed "17 demo records · 1 observed in Dataset B". The real figures are **28 records and 2 observed** (both queues, two screenshot-confirmed records). A reviewer checking that line against the data would have found the console understating its own evidence by half.
 - `AuditHistory` still described payroll as "workflow not implemented yet" beside a row counting its completed runs.
@@ -197,7 +291,8 @@
 - Product renamed to **Attention AI** in the sidebar, the browser title and the FastAPI docs title.
 - Verified: 76 backend tests, **29 frontend tests** (up from 26), typecheck/lint/build clean. Live check confirms the previously hardcoded lines now read 28 records / 2 observed, and each workflow cites its own segment.
 
-## 2026-09-17 — Repository reorganisation: two phase folders, one environment
+### Repository reorganisation: two phase folders, one environment
+
 - Thirteen `phase1*/` result directories and `phase2_dataset_b/` sat at the repo root alongside the datasets, the backend, the frontend and the analysis source, so the top level gave a reviewer no sense of the project's actual shape. Collapsed them into `phase1/{src,results}` and `phase2/{src,results}`, moving the scripts next to the outputs they produce. Root went from 13 phase directories to 2.
 - `src/` now holds only what it should: the Phase 0 data foundation (loading, parsing, normalising, joining) that both phases read. `tolerance_metrics.py` moved to `phase1/src/`, where it belongs — it is a Phase 1 variant comparison, not shared infrastructure.
 - **The move broke every path in the analysis code, silently.** Each script resolved the repo root as `Path(__file__).resolve().parents[1]` and wrote to `ROOT/'<its own name>'`; two levels down, `parents[1]` is the phase folder. Repointed all of them to `parents[2]` and into `<phase>/results/`, using exact-string replacement with an assertion per substitution, so that a literal like `'phase1f_nms_suppressed_fn_count'` — a dict key, not a path — could not be caught by a careless regex.
@@ -210,10 +305,40 @@
 - Added `PROJECT_STRUCTURE.md` (root `README.md` is the assignment brief and stays untouched), `phase1/README.md` indexing what each of the 13 scripts answered and in what order, and promoted the Phase 2 README out of the results directory with its internal links repointed.
 - Verified after every change: 76 backend tests, 29 frontend tests, 2 Phase 0 tests, all passing on the single merged environment.
 
-## 2026-09-17 — A `deliverables/` folder, and the report slot made honest
+### A `deliverables/` folder, and the report slot made honest
+
 - The four things the brief actually asks for were scattered: `segments.jsonl` buried three levels down in a phase output directory, the work log at the root among four other root-level markdown files, and the report nowhere at all. Collected them into `deliverables/` so what gets submitted is separable from what produced it.
 - **`segments.jsonl` is not a copy, and that was the one design decision worth making carefully.** A copied deliverable drifts behind a rerun silently — exactly the failure this project has been strict about everywhere else. So `phase2_process_summary.py::write_segments_jsonl` now builds the payload once and writes both `phase2/results/segments.jsonl` and `deliverables/segments.jsonl` from the same string in the same function. Divergence is impossible by construction rather than by discipline. Proved it by deleting the deliverables copy and rerunning: recreated, md5 `54efb1b5…`, matching the phase output exactly.
 - Revalidated the deliverable against the brief's schema after regeneration: 226 rows, exactly the four keys `{session_id, start, end, label}` on every row, 15/15 Dataset B sessions, 21 distinct labels, 0 non-`Z` timestamps.
 - Moved `WORKLOG.md` into `deliverables/` rather than copying it, for the same reason — a work log that exists twice is a work log that will disagree with itself.
 - **Wrote the report scaffold, not the report.** `deliverables/FINAL_REPORT.md` carries the brief's five required points as verbatim headings, an inventory of what evidence already exists for each, and explicit ⚠️ markers on what does not. Being concrete about the gaps matters more than filling the file: four things exist nowhere in the repo — **why the alternatives (n8n / Power Automate / a deterministic script / a desktop app) were rejected**, which is a named requirement with zero supporting material; **mitigations** for the risks, where the repo documents risks thoroughly and has literally no occurrence of "mitigat"; **the 7-day allocation**, which the dated entries can reconstruct as sequence but not as intent; and **an explicit ranked ordering** of candidates, which Phase 2 deliberately did not produce because it was instructed not to declare a winner.
 - The scaffold also records one thing the report must *refuse* to do: subtract prototype latency from the Dataset B human baseline to manufacture a savings figure. Browser time against a local mock and human time in a test environment with deliberately shortened waits are not comparable populations, and 69.5% of the 226 segments are merged multi-case sessions. The console already refuses this on screen; the report has to refuse it too.
+
+## Day 5 — 18 September 2026
+*Consolidate, and fix what the screens were still faking*
+
+### Labelling segments by process rather than by the server they ran on
+
+- **What I was thinking.** With the prototype finished, the question was whether to spend remaining time improving Phase 1 or writing the report. Checking the actual numbers before deciding turned up something better than either.
+- The five 1F variants differ by tolerance, not uniformly: at exact match 1F.4 is best (0.3764) and the selected 1F.5 is *worse than the baseline* (0.3323 vs 0.3680); from tolerance 2 upward 1F.5 wins (0.5831 vs 0.5358). Four variants bought roughly +0.01 at exact match. Clear diminishing returns, so the scorer stays frozen.
+- The dominant error is not scorer quality but under-segmentation: 96 distinct case IDs across 9 payroll segments, and one 359s onboarding segment containing 12 sequential case IDs. No amount of logistic-regression tuning fixes that. A case-ID split rule would, but it changes boundaries, which cascades into Phase 2 counts, the backend's workflow evidence, the tests and every number in the report. Recorded as "what I would do next" instead of built.
+- **What I found instead.** The deliverable's labels embedded the host:port — `B-127.0.0.1_5132_payroll-items`. Payroll review was therefore split across three labels by port (39 + 15 + 7), leave across three (23 + 7 + 5), onboarding across two (16 + 6). The brief scores this file on whether the same process consistently receives the same label, so roughly 60 of 226 segments were being counted as inconsistent for a reason that has nothing to do with the work performed.
+- Checked the assumption rather than asserting it: port does not track machine (all four workers use all three ports) and the same routes appear across several ports, so the ports are instances of one HR suite, not distinct processes. The brief's own example label (`expense_processing`) is a business process name with no host.
+- Scoped the change to the deliverable only. `slug()` is untouched, so Phase 2's grouping still treats instances as distinct and every internal CSV is byte-identical — 18 of 19 `phase2/results` files unchanged. Boundaries identical, all 226. Measured against route-as-process, same-process pairs sharing a label went from 1438/2832 (50.8%) to 2832/2832.
+- That 100% is measured against my own definition of "same process", so it quantifies what rides on the assumption rather than proving it. If the ground truth treats each server as its own process, the old labels were right. Recorded as a judgement, not a win.
+- Deliberately did **not** name the two catchalls. `browser-unrouted` (40 segments) and `hr-web-unrouted` (12) are segments whose route was never captured; inventing a business name for them would have improved the consistency figure by fabricating a finding.
+
+### Making the console's dead controls work, and deriving three stale labels
+
+- **What I was thinking.** The console's entire argument is that nothing on screen is invented. Two buttons in the task queue — Export CSV and Filter by workflow — had no handlers at all. A decorative button in that context is the same failure as a hardcoded number.
+- Export now downloads exactly what is on screen, with tab, search and stage filter applied; exporting the whole queue regardless of filters would produce a file that disagrees with the table the person was looking at. The button carries its own row count, so a dead one would be visible as one.
+- Two details that would have been quietly wrong. Comments and evidence notes are free text containing commas and quotes, so values are escaped per RFC 4180 — a naive `join(',')` shifts every column after the offending cell and still looks like a table. And the file carries a UTF-8 BOM, because nearly every value is Japanese and Excel on Windows opens a BOM-less UTF-8 CSV as cp932 and renders all of it as mojibake.
+- `prior_approval_required` exports as `UNKNOWN`, not blank, when null. Null there means the detail panel was never opened, which is the entire reason those records escalate; flattening it to empty would erase the finding.
+- Filter by workflow is bound to the same `tab` state the tabs below already use. Two controls for one filter is fine; two sources of truth is not.
+- Three labels were literals that had gone stale: the dashboard badge read `Workflow #1` for *every* implemented workflow, so payroll claimed to be first; the queue header read "Leave Approval active"; and the payroll test fixture still had `implemented: false` with no steps and no REJECT, meaning every test touching workflow definitions was asserting against a version of the app that no longer exists. All three now derived, the fixture rebuilt from `all_definitions()`.
+- Verified: 39 frontend tests (up from 29), typecheck/lint/build clean.
+
+### Restructuring this log
+
+- Grouped 27 flat entries under the five days they belong to, and added the day-allocation table, the "what did not work" index and the consolidated record of AI usage that the brief asks for. No entry was rewritten — content lines before and after are identical, only the nesting changed.
+- Entries from days that turned out to be wrong are left as written. A log that records only the decisions that survived is not a log.

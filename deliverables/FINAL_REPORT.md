@@ -126,26 +126,34 @@ They are reproduced verbatim as the section headings, so none can be quietly dro
 
 ---
 
-## 5. How the 7 days were allocated, and why
+## 5. How the days were allocated, and why
 
-> ⚠️ **Gap — and the only section I cannot draft.** There is no day-allocation record
-> anywhere: zero hits for "7 days" or "allocated" in the work log. The dated entries
-> in [`WORKLOG.md`](WORKLOG.md) show what happened on which date and can reconstruct
-> the *sequence*, but not the intent behind the split, which is what the brief asks
-> for ("and why").
->
-> This needs your input. The shape the log implies: Phase 0 data foundation →
-> Phase 1 segmentation on Dataset A, including one false start that an audit ended
-> and a rewrite → Phase 2 applying the frozen scorer to Dataset B → Phase 3
-> prototype, two workflows → hardening and honesty passes.
+**Resolved — this now lives in the work log.** [`WORKLOG.md`](WORKLOG.md) opens with
+a *How the days were allocated* table: five days, 14–18 September, each with what it
+covered and why it came in that order, plus the reasoning for the split (Phase 1 took
+two and a half days because that is where the uncertainty was; Phase 3 took one
+because Phase 2 had already specified it).
+
+The brief lists this under the report rather than the work log, so the report should
+still carry a short section — roughly half a page summarising the allocation and the
+reasoning, ending with a pointer to the work log for the day-by-day detail. Duplicating
+the full table in both places would just create two things to keep in sync.
+
+Note the honest figure: the work took **five days, not seven**. The log presents it
+that way rather than padding it out.
 
 ---
 
 ## Drafting notes
 
-- Sections 1–4 can be drafted from the repo. Section 5 cannot.
-- Four things exist nowhere and are genuinely new writing: **why the alternatives
-  were rejected** (§2), **risk mitigations** (§4), **the 7-day allocation** (§5), and
-  **an explicit ranked ordering** (§1).
+- All five sections can now be drafted from the repo.
+- Three things still exist nowhere and are genuinely new writing: **why the
+  alternatives were rejected** (§2 — a named requirement with zero supporting
+  material, and the biggest gap), **risk mitigations** (§4 — the risks are
+  documented thoroughly, the mitigations not at all), and **an explicit ranked
+  ordering** of candidates (§1 — Phase 2 deliberately declared no winner).
+- Two findings from day 5 belong in the report: the 1F variant/tolerance table
+  (1F.5 is *worse* than 1F.4 at exact match — state it and own the trade-off), and
+  the label-granularity decision in `segments.jsonl` (process, not server instance).
 - Every figure quoted in the report should be traceable to a committed file, since
   the result tables are tracked precisely so a reviewer can check them.

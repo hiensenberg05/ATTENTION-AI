@@ -69,10 +69,18 @@ written from scratch.
 
 ## 4 — Work log
 
-[`WORKLOG.md`](WORKLOG.md) — dated entries covering what was tried, what was
-measured, and what did not work. The brief also asks for a record of how
-generative AI was used; that is recorded inline in the entries rather than in a
-separate section, because the AI usage was the working method, not a footnote to it.
+[`WORKLOG.md`](WORKLOG.md) — 30 entries grouped under the five days they belong
+to, opening with three things the brief asks for directly:
+
+- **How the days were allocated**, and the reasoning behind the split
+- **What did not work** — indexed rather than buried, including the Phase 1F.2
+  regression, the dropped Phase 1G LLM experiment, and the audit that found Phase
+  1F had never actually been run
+- **How generative AI was used**, including where it was deliberately *not* used:
+  no LLM touches segmentation at all
+
+Entries are as they were written. Days that turned out to be wrong are left in,
+because a log recording only the decisions that survived is not a log.
 
 ---
 
