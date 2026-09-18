@@ -36,8 +36,9 @@ import { DemoDataNotice, ProvenanceBadge, StageBadge } from '@/components/domain
 import { useAsync } from '@/hooks/useAsync'
 import { fetchQueue, startAutomation } from '@/services/api'
 import { isPending, searchableText, WORKFLOW_LABEL } from '@/lib/record'
+import { toCsv, downloadCsv, stampedFilename } from '@/lib/csv'
 import { pct, relativeTime, seconds } from '@/lib/format'
-import type { QueueTask } from '@/types'
+import { isLeaveRequest, type QueueTask } from '@/types'
 
 type TabId = 'all' | 'leave' | 'payroll' | 'review' | 'failed'
 
@@ -186,19 +187,112 @@ export default function TaskQueue() {
 
   const pendingUnrun = tasks.filter((t) => !t.job_id && isPending(t.record)).length
 
+  /**
+   * Export exactly what is on screen — the active tab, search and stage filter
+   * all applied. Exporting the whole queue regardless of the filters would hand
+   * back a file that disagrees with the table the person was looking at.
+   *
+   * Columns are the underlying record fields, not the rendered strings: `yen()`
+   * output and relative times ("2 minutes ago") are for reading, not for a
+   * spreadsheet. `prior_approval_required` is written as UNKNOWN rather than
+   * blank when it is null, because null here means the detail panel was never
+   * opened — which is the whole reason those records escalate.
+   */
+  function exportCsv() {
+    const csv = toCsv(filtered, [
+      { header: 'workflow', value: (t) => WORKFLOW_LABEL[t.workflow] },
+      { header: 'record_id', value: (t) => t.record.record_id },
+      { header: 'status', value: (t) => t.record.status },
+      { header: 'stage', value: (t) => t.stage },
+      { header: 'decision', value: (t) => t.decision ?? 'not yet decided' },
+      { header: 'confidence', value: (t) => t.confidence },
+      { header: 'employee_id', value: (t) => t.record.employee_id },
+      { header: 'employee_name', value: (t) => t.record.employee_name },
+      {
+        header: 'request_type_or_category',
+        value: (t) => (isLeaveRequest(t.record) ? t.record.request_type : t.record.category),
+      },
+      {
+        header: 'amount',
+        value: (t) => (isLeaveRequest(t.record) ? null : t.record.amount),
+      },
+      {
+        header: 'prior_approval_required',
+        value: (t) =>
+          isLeaveRequest(t.record)
+            ? (t.record.prior_approval_required ?? 'UNKNOWN')
+            : null,
+      },
+      {
+        header: 'prior_approval_obtained',
+        value: (t) =>
+          isLeaveRequest(t.record)
+            ? (t.record.prior_approval_obtained ?? 'UNKNOWN')
+            : null,
+      },
+      {
+        header: 'policy_reference',
+        value: (t) => (isLeaveRequest(t.record) ? null : t.record.policy_reference),
+      },
+      { header: 'provenance', value: (t) => t.record.provenance },
+      { header: 'evidence_note', value: (t) => t.record.evidence_note },
+      { header: 'detail', value: (t) => t.detail_line },
+      { header: 'duration_seconds', value: (t) => t.duration_seconds },
+      { header: 'submitted_at', value: (t) => t.submitted_at ?? 'not yet run' },
+      { header: 'job_id', value: (t) => t.job_id || 'none' },
+    ])
+    downloadCsv(stampedFilename('attention-ai-queue'), csv)
+  }
+
+  // The header badge used to read "Leave Approval active" as a literal, which
+  // stopped being true the day payroll shipped. Read it off the queue instead.
+  const activeWorkflows = [...new Set(tasks.map((t) => t.workflow))]
+
   return (
     <>
       <PageHeader
         title="Workflow Task Queue"
-        badge={<Badge tone="brand" dot>Leave Approval active</Badge>}
+        badge={
+          <Badge tone="brand" dot>
+            {activeWorkflows.length === 1
+              ? `${WORKFLOW_LABEL[activeWorkflows[0]]} active`
+              : `${activeWorkflows.length} workflows active`}
+          </Badge>
+        }
         subtitle="Business records queued for policy evaluation and dispatch. Clicking a task opens wherever it currently sits in the pipeline."
         actions={
           <>
-            <Button variant="secondary" icon={<Filter size={14} />}>
-              Filter by workflow
-            </Button>
-            <Button variant="secondary" icon={<Download size={14} />}>
-              Export CSV
+            {/* Bound to the same `tab` state the tabs below use, deliberately:
+                two controls for one filter is fine, two sources of truth is not. */}
+            <label className="relative flex items-center">
+              <Filter
+                size={14}
+                className="pointer-events-none absolute left-3 text-ink-400"
+                aria-hidden
+              />
+              <select
+                aria-label="Filter by workflow"
+                value={tab === 'leave' || tab === 'payroll' ? tab : 'all'}
+                onChange={(e) => setTab(e.target.value as TabId)}
+                className="appearance-none rounded-lg border border-line bg-surface py-2 pl-9 pr-8 text-[12.5px] font-semibold text-ink-700 focus:border-brand-400 focus:outline-none"
+              >
+                <option value="all">All workflows</option>
+                <option value="leave">Leave Approval ({counts.leave})</option>
+                <option value="payroll">Payroll Confirmation ({counts.payroll})</option>
+              </select>
+            </label>
+            <Button
+              variant="secondary"
+              icon={<Download size={14} />}
+              disabled={filtered.length === 0}
+              onClick={exportCsv}
+              title={
+                filtered.length === 0
+                  ? 'Nothing matches the current filters'
+                  : `Download the ${filtered.length} row${filtered.length === 1 ? '' : 's'} currently shown`
+              }
+            >
+              Export CSV{filtered.length ? ` (${filtered.length})` : ''}
             </Button>
             {bulk && (
               <Button variant="secondary" onClick={() => (cancelBulk.current = true)}>

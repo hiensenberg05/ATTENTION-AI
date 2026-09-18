@@ -243,21 +243,45 @@ export const workflows: WorkflowDefinition[] = [
     workflow: 'PAYROLL_CONFIRMATION',
     name: 'Payroll Confirmation',
     description:
-      'Review one pending payroll/expense line item against policy and confirm or hold it. Declared and evidenced, not yet implemented.',
-    implemented: false,
+      'Review one pending payroll/expense line item against an explicit prototype policy and either confirm it, hold it, or escalate it to a human.',
+    implemented: true,
     record_model: 'PayrollItem',
     policy_key: 'payroll_confirmation',
-    steps: [],
-    supported_decisions: ['APPROVE', 'REVIEW'],
+    steps: [
+      { step_id: 'load_item', name: 'Load pending payroll item', description: 'Fetch one pending line item from the expense/salary queue.', state: 'LOADING', automated: true },
+      { step_id: 'validate_item', name: 'Validate required information', description: 'Check the record carries every field the policy needs.', state: 'VALIDATING', automated: true },
+      { step_id: 'analyze', name: 'Analyze relevant fields', description: 'Extract the decision-relevant fields: category, amount, and the 参照 policy-reference note.', state: 'ANALYZING', automated: true },
+      { step_id: 'policy_check', name: 'Evaluate configured policy', description: 'Apply the explicit prototype policy and produce a structured decision.', state: 'POLICY_CHECK', automated: true },
+      { step_id: 'human_review', name: 'Human review', description: 'A person resolves records the policy could not decide.', state: 'HUMAN_REVIEW', automated: false },
+      { step_id: 'execute', name: 'Execute decision in the payroll system', description: 'Deterministically open the record and click the decided control.', state: 'EXECUTING', automated: true },
+      { step_id: 'verify', name: 'Verify resulting status', description: 'Re-read the status from the queue screen and confirm it actually changed.', state: 'VERIFYING', automated: true },
+    ],
+    supported_decisions: ['APPROVE', 'REJECT', 'REVIEW'],
     execution_actions: [
-      { decision: 'APPROVE', action: 'CONFIRM_PAYROLL', ui_target_label: '登録確定', auto_executable: false, rationale: 'Workflow not implemented yet.' },
+      {
+        decision: 'APPROVE',
+        action: 'CONFIRM_PAYROLL',
+        ui_target_label: '登録確定',
+        auto_executable: true,
+        rationale:
+          'The confirm path was directly observed end to end in Dataset B (segment ses_20260701-190250-NEELA9BAF::seg002, record P1-07046967-001).',
+      },
+      {
+        decision: 'REJECT',
+        action: 'HOLD_PAYROLL',
+        ui_target_label: '保留',
+        auto_executable: false,
+        rationale:
+          'The 保留 (hold) button exists in the UI but was NEVER observed being used. Such records go to human review.',
+      },
     ],
     verification: {
-      method: 'Re-read the record status after submitting.',
+      method:
+        "Re-read the item's status from the queue screen after submitting and compare it against the expected post-action label.",
       status_before: '未処理',
-      expected_status_after: { APPROVE: '登録確定済み' },
+      expected_status_after: { APPROVE: '登録確定済み', REJECT: '保留' },
       expected_status_observed_in_dataset_b: false,
-      note: 'Draft — payroll policy thresholds were never visible in the logs.',
+      note: 'PROTOTYPE ASSUMPTION. The post-action status labels are derived from the button labels rather than observed.',
     },
     evidence: {
       dataset: 'dataset_b',

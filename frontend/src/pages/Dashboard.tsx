@@ -61,6 +61,13 @@ export default function Dashboard() {
   }, {})
   stageCounts.LOADING = metrics.queued
 
+  // Implemented workflows are numbered in the order the backend serves them,
+  // which is the order they shipped: leave first, payroll second. Derived rather
+  // than typed, so a third workflow numbers itself instead of claiming to be #1.
+  const implementedOrder = workflows.filter((w) => w.implemented).map((w) => w.workflow)
+  const workflowNumber = (id: (typeof implementedOrder)[number]) =>
+    implementedOrder.indexOf(id) + 1
+
   // The observed human clean-instance times, read from the workflow evidence
   // rather than typed in. Two workflows now, so it is a range, not one number.
   const cleanInstances = workflows
@@ -202,7 +209,7 @@ export default function Dashboard() {
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="text-[13.5px] font-bold text-ink-900">{wf.name}</h3>
                     <Badge tone={wf.implemented ? 'ok' : 'warn'} dot>
-                      {wf.implemented ? 'Workflow #1' : 'Declared'}
+                      {wf.implemented ? `Workflow #${workflowNumber(wf.workflow)}` : 'Declared'}
                     </Badge>
                   </div>
                   <p className="mt-1.5 text-[12px] leading-snug text-ink-500">{wf.description}</p>

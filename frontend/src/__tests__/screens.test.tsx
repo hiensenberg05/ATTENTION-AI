@@ -152,6 +152,18 @@ describe('dashboard', () => {
       expect(page().getAllByText(stage).length).toBeGreaterThan(0)
     }
   })
+
+  it('numbers each implemented workflow distinctly', async () => {
+    renderAt('/')
+    await waitFor(() => expect(page().getByText('Automated workflows')).toBeTruthy(), settle)
+
+    // Both workflows shipped, so both carry a badge - and they must not both
+    // claim to be the first one. The badge used to be the literal 'Workflow #1'
+    // for every implemented workflow, which made payroll look like leave.
+    expect(page().getByText('Workflow #1')).toBeTruthy()
+    expect(page().getByText('Workflow #2')).toBeTruthy()
+    expect(page().queryAllByText('Workflow #1').length).toBe(1)
+  })
 })
 
 describe('task queue', () => {
@@ -174,6 +186,26 @@ describe('task queue', () => {
     await waitFor(() => expect(page().getByText(/Showing/)).toBeTruthy(), settle)
     // header row + one row per task
     expect(page().getAllByRole('row').length).toBe(allQueueTasks.length + 1)
+  })
+
+  it('offers a live workflow filter and a CSV export of what is on screen', async () => {
+    renderAt('/queue')
+    await waitFor(() => expect(page().getByText(/Showing/)).toBeTruthy(), settle)
+
+    // Both controls used to be decorative - no handler, nothing behind them.
+    // The export names its own row count, so a dead button is visible as one.
+    expect(page().getByText(`Export CSV (${allQueueTasks.length})`)).toBeTruthy()
+
+    const filter = page().getByLabelText('Filter by workflow') as HTMLSelectElement
+    expect(filter.value).toBe('all')
+    expect([...filter.options].map((o) => o.value)).toEqual(['all', 'leave', 'payroll'])
+  })
+
+  it('names both workflows in the header rather than only the first', async () => {
+    renderAt('/queue')
+    await waitFor(() => expect(page().getByText(/Showing/)).toBeTruthy(), settle)
+    // Was the literal "Leave Approval active", which payroll shipping made false.
+    expect(page().getByText('2 workflows active')).toBeTruthy()
   })
 })
 
