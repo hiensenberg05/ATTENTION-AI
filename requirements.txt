@@ -42,5 +42,11 @@ python-dotenv==1.2.3           # loads the repo-root .env if present
 # --- Phase 3: deterministic execution ---------------------------------------
 playwright==1.63.0             # run `python -m playwright install chromium`
 
+# --- Deliverable 3: the final report ----------------------------------------
+# deliverables/report/render_pdf.py prints the cover and the body as two
+# separate chromium passes (only a zero-margin page can carry a full-bleed
+# cover) and merges them into one file.
+pypdf==6.19.0
+
 # --- Tests (Phase 0 analysis tests + the 76 backend tests) ------------------
 pytest==9.1.1
