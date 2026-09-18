@@ -1,243 +1,192 @@
-# Intern Selection Task: From Operation Logs to an Automation Proposal
+# Attention AI
 
-**Duration:** 7 days
-**Submission:** Full repository (including Git history) + final report
+## Author Credentials
 
----
+- Name: Uttkarsh Solanki
+- Roll number: 23CH3EP19
+- University: IIT Kharagpur
+- Department: B.Tech. (Hons.) in Chemical Engineering and Master of Engineering Entrepreneurship
 
-## Background
+## Project Overview
 
-You have been assigned as an FDE (Forward Deployed Engineer) to a client company.
+Attention AI analyzes desktop operation logs to recover units of work and identify automation opportunities. It also includes a Step 3 prototype for bounded HR workflows. The backend combines deterministic policy checks, optional LLM decisions, Python state-machine orchestration, Playwright execution, and independent verification.
 
-In this company's back-office departments (HR, Finance, Logistics, and others), staff
-spend their days moving back and forth between internal business systems and desktop
-applications such as Excel and Word, processing routine paperwork. For these employees,
-this kind of work continues all day long.
+## Repository Structure
 
-The company already runs a desktop agent that collects PC operation logs from its staff.
-Every keystroke, click, and application switch is recorded in chronological order.
-
-Management has one request:
-
-> **"Use these logs to tell us where automation would have the greatest impact on our
-> operations. And show us something that actually works."**
-
-However, what is recorded is only **operations**. Nothing in the log says
-"this person is now processing an expense claim" or "this is an onboarding procedure."
-The logs have been piling up untouched. Right now, nobody knows what work is being done,
-by whom, or how much time it takes.
-
----
-
-## Goal
-
-**Produce a proposal that maximizes the client's ROI, and demonstrate it with something
-that actually runs.**
-
-Technical accuracy is not the objective in itself. Your judgment is what is being
-assessed — including how you choose to spend your 7 days.
-
----
-
-## Provided Data
-
-See **`DATA_SCHEMA.md`** for the full data specification.
-
-### Dataset A (with ground truth / 63 sessions / ~162,000 events)
-
-```
-dataset_a/
-  ses_<date>-<time>-<machine>/
-    chunk_<date>-<time>-<machine>/
-      events.jsonl        <- raw operation log
-      manifest.json       <- chunk metadata
-      screenshots/        <- screen captures referenced by screenshot events
-    gt.jsonl              <- ground truth
-    gt_manifest.json      <- ground truth summary (per session)
+```text
+DATA_SCHEMA.md          Input data specification
+dataset_a/              Operation logs with ground truth
+dataset_b/              Operation logs without ground truth
+src/                    Shared Phase 0 loading, parsing, validation, and features
+outputs/                Phase 0 generated tables and profiles
+phase1/src/             Dataset A experiments and segmentation scripts
+phase1/results/         Dataset A metrics and experiment outputs
+phase2/src/             Dataset B segmentation and process-analysis scripts
+phase2/results/         Dataset B segments, summaries, candidates, and plots
+deliverables/           Final Step 1 output, final report, and work log
+backend/                FastAPI service, workflows, mock HR app, and Python tests
+frontend/               React + Vite operations console
+Dockerfile              Multi-stage backend plus frontend production image
+tests/                  Additional project tests
 ```
 
-`gt.jsonl` records when each business process started and ended.
-Use this dataset to build and validate your approach.
+## Requirements
 
-Note that a single session may be split across multiple chunks. This is a property of
-how the agent records data — it is not an anomaly.
+- Python 3.12 or newer
+- Node.js 22 or newer and npm
+- Git
+- Docker Desktop, only when using the container workflow
+- Chromium installed through Playwright for browser-backed tests and execution
 
-### Dataset B (no ground truth / 15 sessions / ~20,000 events)
+## Initial Setup
 
+Run these commands from the repository root.
+
+### Windows PowerShell
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python -m playwright install chromium
 ```
-dataset_b/
-  ses_<date>-<time>-<machine>/
-    chunk_<date>-<time>-<machine>/
-      events.jsonl        <- raw operation log
-      manifest.json       <- chunk metadata
-      screenshots/        <- screen captures referenced by screenshot events
+
+### macOS or Linux
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python -m playwright install chromium
 ```
 
-**This is the production data you are asked to analyze.** There is no ground truth.
-It comes from different departments performing different work than Dataset A,
-and the applications in use are also different.
+The project uses one Python environment for Phase 0, Phase 1, Phase 2, the backend, and the tests. Optional LLM configuration is read from a root `.env` file. Set `GROQ_API_KEY` there to enable the Groq decision layer; without it, the deterministic policy fallback remains available.
 
----
+## Run Phase 0: Load and Validate Data
 
-## Tasks
+Phase 0 parses both datasets, normalizes events, validates Dataset A ground truth, joins Dataset A events to executions, and writes reproducible tables and profiles.
 
-### Step 1 — Recover units of work from the logs
+```powershell
+python src\run_phase0.py
+```
 
-`events.jsonl` is simply a list of keystrokes, clicks, and application switches
-**in the order they occurred.** There are no markers saying "an expense claim started here"
-or "it ended here."
+Outputs are written to `outputs/tables/` and `outputs/profiles/`.
 
-Your task is to recover "one coherent unit of work" from this stream.
-In other words, **the goal of Step 1 is to segment a continuous sequence of events into
-individual executions of business processes.**
+## Run Phase 1: Dataset A Segmentation
 
-#### What makes this difficult
+Dataset A has ground truth and is used to develop and measure boundary detection. The scripts are progressive experiments; each writes results under `phase1/results/`.
 
-Real office workers do not behave the way a textbook would suggest.
+```powershell
+# Initial exploration and signal studies
+python phase1\src\phase1_initial.py
+python phase1\src\phase1a_boundary_context.py
+python phase1\src\phase1b1_diagnosis.py
+python phase1\src\phase1b_segmentation.py
+python phase1\src\phase1c_candidate_generation.py
+python phase1\src\phase1d_signal_coverage.py
+python phase1\src\phase1e_interaction_sequences.py
 
-- **Work is not contiguous.** A person switches to a different task partway through one,
-  then returns to it later
-- **The same process appears many times a day.** Different cases are processed
-  using the same procedure, over and over
-- **The same process does not always follow the same steps.** Depending on the case
-  and the conditions, the systems visited and the items checked will differ
-- **Operations unrelated to any business process are mixed in**
+# Segmentation experiments
+python phase1\src\phase1f_segmentation.py
+python phase1\src\phase1f2_segmentation.py
+python phase1\src\phase1f3_segmentation.py
+python phase1\src\phase1f4_segmentation.py
+python phase1\src\phase1f5_segmentation.py
+```
 
-#### How to proceed
+Phase 1F.5 is the frozen pipeline used by Phase 2. Its outputs include boundary metrics, segment results, calibration, feature weights, and plots in `phase1/results/phase1f5_segmentation/`.
 
-Start with Dataset A. Because A includes ground truth (`gt.jsonl`), **you can measure
-how correct your approach is.** How far you push accuracy — and what you consider
-"good enough" — is left to your judgment.
+To calculate tolerance-window metrics for a generated boundary result:
 
-For the output format, see the Deliverables section.
+```powershell
+python phase1\src\tolerance_metrics.py
+```
 
-### Step 2 — Analyze the work and identify automation candidates
+## Run Phase 2: Dataset B Analysis
 
-Apply your Step 1 approach to Dataset B, and analyze the operations based on its output.
+Phase 2 reproduces and verifies the frozen Phase 1F.5 fit using Dataset A, applies it to Dataset B, groups recovered segments into process families, and creates the automation-candidate analysis.
 
-- What processes are performed, how often, and how much time do they consume?
-- How many people are involved?
-- Are there different handling patterns within the same process?
+Run the scripts in this order:
 
-Then, **propose which processes should be automated, in priority order.**
-Explain the reasoning behind that ordering.
+```powershell
+python phase2\src\phase2_dataset_b_segmentation.py
+python phase2\src\phase2_process_analysis.py
+python phase2\src\phase2_process_summary.py
+```
 
-### Step 3 — Build an automation tool
+All Phase 2 outputs are written to `phase2/results/`. The main files are:
 
-From the candidates identified in Step 2, build the one (or ones) you judge to have
-the greatest impact.
+- `segments.jsonl`: required Step 1 output format
+- `segment_features.csv`: per-segment audit table
+- `process_summary.csv`: process-family aggregate statistics
+- `variant_analysis.csv`: within-process variants
+- `automation_candidates.csv`: candidate impact, feasibility, evidence, and risk
+- `representative_segments.csv`: examples for manual verification
+- `phase2_summary.md`: full analysis and uncertainty discussion
 
-The form your "automation tool" takes is up to you. Any of the following is acceptable,
-as are approaches not listed here:
+The committed deliverable is also available at `deliverables/segments.jsonl`.
 
-- An AI agent (for example, something like Copilot given a set of procedure definitions)
-- A workflow definition (n8n, Power Automate, etc.)
-- A deterministic script (Python, PowerShell, etc.)
-- A desktop application
-- A web application
+## Run the Backend Prototype
 
-#### Consider feasibility when choosing
+Start from the repository root with the virtual environment active:
 
-An idea with large potential impact is worthless if it cannot be built. Before deciding
-what to target, assess the **overall development difficulty**. For example:
+```powershell
+cd backend
+python -m uvicorn main:app --reload --port 8000
+```
 
-- How would you access the data in the target system?
-- How complex is the business logic? How many decision branches are there?
-- What operational and governance constraints apply?
-- What risks would only surface once implementation begins?
+Useful URLs:
 
-The information you can extract from the provided logs is limited.
-**We are looking at how well you can anticipate realistic risks from that limited
-information.** Proposals built purely on optimistic assumptions will not score well.
+- API documentation: http://127.0.0.1:8000/docs
+- Health check: http://127.0.0.1:8000/health
+- Mock leave application: http://127.0.0.1:8000/mock-hr/leave-applications
+- Mock payroll queue: http://127.0.0.1:8000/mock-hr/payroll-items
 
-#### Decide the number and scope yourself
+The backend supports Leave Approval and Payroll Confirmation. Set `PLAYWRIGHT_HEADLESS=false` in `.env` to watch browser execution. The backend uses a deterministic policy engine when `GROQ_API_KEY` is not configured.
 
-**We do not specify how many tools to build.** Whether you build one thing specialized
-for a single process, or a general mechanism that can be extended across several processes
-(for example, a shared foundation with per-process definitions) — **that decision is itself
-part of the ROI question.**
+## Run the Frontend Console
 
-A broadly applicable design has a higher ceiling, but delivers zero value if you cannot
-finish it. State clearly what you chose to cover, what you deferred to a later phase,
-and why.
+Keep the backend running and use a second terminal:
 
-#### What your report must explain
+```powershell
+cd frontend
+npm install
+npm run dev
+```
 
-A working prototype is sufficient. Polish itself is not evaluated; judgment is.
-Your report must address the following four points:
+Open http://localhost:5173. The Vite development server proxies `/api` requests to the backend. Available screens include the overview, workflow queue, agent decisions, execution trace, human review queue, and audit history.
 
-1. **Why you chose that process, and why that scope**
-2. **Why you chose that implementation form** — including why you rejected the alternatives
-3. **What manual work remains after deployment**, and what impact can realistically be expected
-4. **What risks you anticipate in implementation and rollout, and how you would address them**
-   — including what evidence led you to anticipate each risk
+## Run Tests and Checks
 
----
+```powershell
+# From the repository root, with the Python environment active
+python -m pytest
 
-## Deliverables
+# Frontend checks
+cd frontend
+npm run test
+npm run typecheck
+npm run lint
+npm run build
+```
 
-1. **Step 1 output** — the result of applying your approach to Dataset B,
-   submitted as `segments.jsonl`
+Backend tests should be run with the root environment active. Browser-backed tests require the Playwright Chromium installation from the setup step.
 
-   One JSON object per line:
+## Run with Docker
 
-   ```json
-   {"session_id": "ses_20260701-183232-LAPTOP-76QMG9DE", "start": "2026-07-01T18:32:32Z", "end": "2026-07-01T18:35:41Z", "label": "expense_processing"}
-   ```
+The multi-stage image builds the React frontend and serves it through FastAPI.
 
-   | Field | Description |
-   |---|---|
-   | `session_id` | The session directory name |
-   | `start` / `end` | Segment start and end time (ISO 8601, UTC) |
-   | `label` | Your own name for the process. **Use the same label for the same process** |
+```powershell
+docker build -t attention-ai .
+docker run --rm -p 8000:8000 attention-ai
+```
 
-   The label text itself is not evaluated — name them however you like.
-   What is evaluated is whether the boundaries between units of work are correct,
-   and whether the same process consistently receives the same label.
+Open http://127.0.0.1:8000. Docker is not required for the local development workflow. The image requires Docker Desktop with enough memory for Python packages and the Chromium browser.
 
-2. **Full repository** — include your Git history (we review how the work progressed)
+## Important Notes
 
-3. **Final report** — must include:
-   - Your Step 2 analysis, the prioritized automation candidates, and the reasoning
-   - A description of what you built in Step 3, **why that process and scope**,
-     and **why that implementation form**
-   - **What manual work remains after deployment, and the impact you realistically expect**
-   - **Anticipated implementation and rollout risks, with your mitigation approach**
-   - How you allocated the 7 days, and why
-
-4. **Work log** — what you were thinking each day, what you tried, and what did not work
-
----
-
-## Notes and Constraints
-
-- **No ground truth is provided for Dataset B.** We will score your submission
-  after you submit it.
-- **The logs come from a Japanese company.** Screen text, business process names, and
-  application UI content are in Japanese. You are free to use translation tools or LLMs.
-- These logs were recorded in a test environment, so the waiting time within each
-  operation is shorter than in real production use. Judge candidates by comparing
-  processes against each other rather than by absolute figures.
-- Some events in `events.jsonl` (`text_input_complete`) are unreliably recorded.
-  Reconstruct from other events if you need that information.
-- **You are free to use generative AI.** Please record how you used it in your work log.
-- Any programming language or library is acceptable.
-
----
-
-## FAQ
-
-**Q. How accurate does Step 1 need to be?**
-A. We will not give you a threshold. Deciding what counts as "good enough" is part of
-the task.
-
-**Q. Does the Step 3 tool need to be production-ready?**
-A. No. A working prototype is sufficient.
-
-**Q. Will I score higher by building something technically sophisticated?**
-A. No. We evaluate the client's ROI. What matters is whether your technical choices
-fit the objective.
-
-**Q. I could not complete all three steps.**
-A. Record in your work log why you did not, and how you arrived at the decisions you made
-along the way.
+- Dataset B has no ground truth; its counts and process boundaries are analytical estimates and should be reviewed with the evidence tables and screenshots.
+- The mock HR application and demo records are not production systems or production approval policies.
+- Never commit `.env`, API keys, or other secrets.
