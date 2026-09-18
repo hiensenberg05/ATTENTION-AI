@@ -44,20 +44,22 @@ from .screens import ScreenSpec, screen_for
 
 logger = logging.getLogger(__name__)
 
-#: Where the mock HR application is served when nothing else is configured.
-FALLBACK_BASE_URL = "http://127.0.0.1:8000/mock-hr"
-
 # The three settings below are read from the environment ON EVERY CALL rather than
 # captured at import time. Binding them as module-level constants would freeze
 # whatever the environment happened to be when this module was first imported,
-# which makes `MOCK_HR_BASE_URL` silently ineffective for anything that configures
-# itself after startup - including tests that need to point the executor at a
-# different server.
+# which makes `PORT` and `MOCK_HR_BASE_URL` silently ineffective for anything that
+# configures itself after startup - including tests that need to point the executor
+# at a different server.
 
 
 def default_base_url() -> str:
-    """Where to drive the browser. Override with `MOCK_HR_BASE_URL`."""
-    return os.environ.get("MOCK_HR_BASE_URL", FALLBACK_BASE_URL).rstrip("/")
+    """Where to drive the browser, honoring an explicit URL override first."""
+    override = os.environ.get("MOCK_HR_BASE_URL")
+    if override:
+        return override.rstrip("/")
+
+    port = os.environ.get("PORT", "8000")
+    return f"http://127.0.0.1:{port}/mock-hr"
 
 
 def default_timeout_ms() -> int:

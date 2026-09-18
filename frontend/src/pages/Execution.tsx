@@ -195,7 +195,7 @@ export default function Execution() {
             <span>·</span>
             <span>Action {exec?.action ?? 'APPROVE_LEAVE'}</span>
             <span>·</span>
-            <span>Target 127.0.0.1:5132/#/leave-applications</span>
+            <span>Target Mock HR: same FastAPI service</span>
           </>
         }
         actions={
