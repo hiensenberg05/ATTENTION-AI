@@ -6,7 +6,7 @@
 - Roll number: 23CH3EP19
 - University: IIT Kharagpur
 - Department: B.Tech. (Hons.) in Chemical Engineering and Master of Engineering Entrepreneurship
-
+- EMAIL:uttkarsh2003.solanki@gmail.com
 ## Project Overview
 
 Attention AI analyzes desktop operation logs to recover units of work and identify automation opportunities. It also includes a Step 3 prototype for bounded HR workflows. The backend combines deterministic policy checks, optional LLM decisions, Python state-machine orchestration, Playwright execution, and independent verification.
